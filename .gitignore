@@ -1,0 +1,14 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+.kotlin/
+captures/
+*.keystore
+*.jks
+engine/stockfish/*.o
+engine/stockfish/syzygy/*.o
+engine/stockfish/stockfish
+engine/stockfish/.depend
