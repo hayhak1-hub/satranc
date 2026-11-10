@@ -23,13 +23,16 @@ Available in Turkish, German and English.
 | `app` | Android app: Jetpack Compose UI, ViewModel, Stockfish process wrapper |
 | `engine` | Stockfish 11 sources and the NDK build script |
 
-Stockfish is compiled from source with the NDK during the Gradle build
-(`:app:buildStockfish`) for `arm64-v8a`, `armeabi-v7a` and `x86_64`. It is shipped
-as `libstockfish.so` and run as a separate process that speaks UCI.
+Stockfish is shipped as `libstockfish.so` (one per ABI: `arm64-v8a`,
+`armeabi-v7a`, `x86_64`) and run as a separate process that speaks UCI. The
+binaries are prebuilt from `engine/stockfish` and committed under
+`app/src/main/jniLibs`, so building the app needs no NDK. To rebuild them after
+changing the engine sources (Linux or macOS, NDK 29.0.14206865):
+`./gradlew :app:buildStockfish`.
 
 ## Building
 
-Requirements: JDK 17+, Android SDK with platform 37 and NDK 29.0.14206865.
+Requirements: JDK 17+ and Android SDK platform 37 (Android Studio works as is).
 
 ```sh
 ./gradlew :chess-core:test        # rules + perft tests

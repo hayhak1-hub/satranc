@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Android SDK packages
         run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "ndk;29.0.14206865" > /dev/null
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" > /dev/null
 
       - name: Build host Stockfish for engine tests
         run: make -C engine/stockfish -j4 build ARCH=x86-64-modern COMP=gcc > /dev/null

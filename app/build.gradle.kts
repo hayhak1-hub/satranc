@@ -74,19 +74,16 @@ abstract class BuildStockfishTask : DefaultTask() {
     }
 }
 
-val buildStockfish = tasks.register<BuildStockfishTask>("buildStockfish") {
+// Prebuilt Stockfish binaries live in src/main/jniLibs so that the app builds
+// without the NDK (and on Windows). After changing engine/stockfish, refresh
+// them with: ./gradlew :app:buildStockfish  (needs NDK, bash and Linux/macOS)
+tasks.register<BuildStockfishTask>("buildStockfish") {
     sourceDir.set(rootProject.layout.projectDirectory.dir("engine/stockfish"))
     script.set(rootProject.layout.projectDirectory.file("engine/build-stockfish.sh"))
     ndkDir.set(androidComponents.sdkComponents.ndkDirectory)
     abis.set(listOf("arm64-v8a", "armeabi-v7a", "x86_64"))
     minSdk.set(26)
-    outputDir.set(layout.buildDirectory.dir("generated/stockfish/jniLibs"))
-}
-
-androidComponents {
-    onVariants { variant ->
-        variant.sources.jniLibs?.addGeneratedSourceDirectory(buildStockfish, BuildStockfishTask::outputDir)
-    }
+    outputDir.set(layout.projectDirectory.dir("src/main/jniLibs"))
 }
 
 dependencies {
