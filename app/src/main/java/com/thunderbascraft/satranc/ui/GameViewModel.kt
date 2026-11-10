@@ -16,11 +16,13 @@ import com.thunderbascraft.satranc.engine.ChessEngine
 import com.thunderbascraft.satranc.engine.Level
 import com.thunderbascraft.satranc.engine.StockfishEngine
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 data class GameUiState(
     val position: Position = Position.start(),
@@ -153,9 +155,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         val gen = generation
         val fen = game.startPosition.toFen()
         val moves = game.moves.map { it.move.uci }
+        val randomMove = pickRandomMove(s.level)
         _state.update { it.copy(thinking = true) }
         engineJob = viewModelScope.launch {
-            val best = runCatching { engine.bestMove(fen, moves, s.level) }
+            val best = if (randomMove != null) {
+                delay(RANDOM_MOVE_DELAY_MS)
+                Result.success(randomMove.uci)
+            } else {
+                runCatching { engine.bestMove(fen, moves, s.level) }
+            }
             if (gen != generation) return@launch
             best.onSuccess { uci ->
                 _state.update { it.copy(thinking = false) }
@@ -167,6 +175,23 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 _state.update { it.copy(thinking = false, engineError = true) }
             }
         }
+    }
+
+    /**
+     * With probability [Level.randomMoveChance] returns a random legal move, so that the
+     * lowest levels make real mistakes. From level 3 up a mate in one is never thrown away.
+     */
+    private fun pickRandomMove(level: Level): Move? {
+        if (level.randomMoveChance <= 0.0 || Random.nextDouble() >= level.randomMoveChance) return null
+        val legal = game.position.legalMoves()
+        if (legal.isEmpty()) return null
+        if (level.number >= 3 && legal.any { givesMate(it) }) return null
+        return legal.random()
+    }
+
+    private fun givesMate(move: Move): Boolean {
+        val next = game.position.play(move)
+        return next.isInCheck() && next.legalMoves().isEmpty()
     }
 
     private fun cancelEngine() {
@@ -252,5 +277,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         engine.close()
+    }
+
+    private companion object {
+        const val RANDOM_MOVE_DELAY_MS = 400L
     }
 }

@@ -2,15 +2,17 @@ package com.thunderbascraft.satranc.engine
 
 /**
  * The six difficulty levels. Stockfish is weakened through its "Skill Level"
- * option together with a search depth and time limit per move.
+ * option together with a search depth and time limit per move. Even at Skill
+ * Level 0 Stockfish is far too strong for beginners, so the lowest levels also
+ * play a random legal move with probability [randomMoveChance].
  */
-enum class Level(val skill: Int, val depth: Int, val moveTimeMs: Long) {
-    NOVICE(0, 1, 50),
-    BEGINNER(3, 2, 100),
-    CASUAL(6, 4, 200),
-    CLUB(10, 8, 400),
-    EXPERT(15, 14, 700),
-    MASTER(20, 30, 1200);
+enum class Level(val skill: Int, val depth: Int, val moveTimeMs: Long, val randomMoveChance: Double) {
+    NOVICE(0, 1, 50, 0.55),
+    BEGINNER(0, 1, 50, 0.30),
+    CASUAL(2, 2, 100, 0.12),
+    CLUB(8, 6, 300, 0.0),
+    EXPERT(14, 12, 600, 0.0),
+    MASTER(20, 30, 1200, 0.0);
 
     val number: Int get() = ordinal + 1
 }
