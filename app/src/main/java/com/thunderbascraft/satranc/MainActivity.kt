@@ -29,17 +29,20 @@ import com.thunderbascraft.satranc.ui.HistoryScreen
 import com.thunderbascraft.satranc.ui.HistoryViewModel
 import com.thunderbascraft.satranc.data.history.GameRecord
 import com.thunderbascraft.satranc.ui.ImportDialogs
+import com.thunderbascraft.satranc.ui.OnlineScreen
+import com.thunderbascraft.satranc.ui.OnlineViewModel
 import com.thunderbascraft.satranc.ui.ImportState
 import com.thunderbascraft.satranc.ui.ReviewScreen
 import com.thunderbascraft.satranc.ui.SatrancTheme
 import com.thunderbascraft.satranc.ui.SettingsScreen
 import com.thunderbascraft.satranc.ui.readPgnText
 
-private enum class Screen { HOME, GAME, ANALYSIS, REVIEW, HISTORY, SETTINGS, ABOUT }
+private enum class Screen { HOME, GAME, ANALYSIS, REVIEW, HISTORY, SETTINGS, ABOUT, ONLINE }
 
 class MainActivity : AppCompatActivity() {
     private val vm: GameViewModel by viewModels()
     private val historyVm: HistoryViewModel by viewModels()
+    private val onlineVm: OnlineViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                     if (vm.openRecord(r)) { reviewFrom = from; screen = Screen.REVIEW }
                 }
                 val importState by vm.importState.collectAsStateWithLifecycle()
+                val online by onlineVm.state.collectAsStateWithLifecycle()
 
                 LaunchedEffect(importState) {
                     if (importState == ImportState.Opened) {
@@ -95,6 +99,8 @@ class MainActivity : AppCompatActivity() {
                             recent = history.all,
                             onHistory = { screen = Screen.HISTORY },
                             onOpenRecord = { openRecord(it, Screen.HOME) },
+                            onOnline = { screen = Screen.ONLINE },
+                            onlineResumeCode = online.resumable?.code?.takeIf { online.configured && online.code == null },
                             modifier = mod,
                         )
                         Screen.GAME -> {
@@ -138,6 +144,13 @@ class MainActivity : AppCompatActivity() {
                         Screen.SETTINGS -> {
                             BackHandler { screen = Screen.HOME }
                             SettingsScreen(vm, onBack = { screen = Screen.HOME }, modifier = mod)
+                        }
+                        Screen.ONLINE -> {
+                            val leave = {
+                                if (online.code != null) onlineVm.leave() else screen = Screen.HOME
+                            }
+                            BackHandler { leave() }
+                            OnlineScreen(onlineVm, onBack = { screen = Screen.HOME }, modifier = mod)
                         }
                         Screen.ABOUT -> {
                             BackHandler { screen = Screen.HOME }
