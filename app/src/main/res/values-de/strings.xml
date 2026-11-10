@@ -100,4 +100,25 @@
     <string name="piece_rook">Turm</string>
     <string name="piece_bishop">Läufer</string>
     <string name="piece_knight">Springer</string>
+    <string name="import_pgn">PGN importieren</string>
+    <string name="open_pgn_file">.pgn-Datei öffnen</string>
+    <string name="paste_pgn">PGN einfügen</string>
+    <string name="paste_pgn_hint">PGN-Text hier einfügen</string>
+    <string name="load">Laden</string>
+    <string name="save_pgn">PGN speichern…</string>
+    <string name="saved">Gespeichert</string>
+    <string name="save_failed">Die Datei konnte nicht gespeichert werden</string>
+    <string name="choose_game">Partie auswählen</string>
+    <string name="pgn_error_title">PGN konnte nicht importiert werden</string>
+    <string name="pgn_error_illegal">Ungültiger Zug: %1$s</string>
+    <string name="pgn_error_fen">Die Ausgangsstellung (FEN) ist ungültig.</string>
+    <string name="pgn_error_empty">In dieser PGN wurde keine Partie gefunden.</string>
+    <string name="pgn_error_read">Die Datei konnte nicht gelesen werden.</string>
+    <string name="review_title">Partie ansehen</string>
+    <string name="continue_from_here">Von hier weiterspielen</string>
+    <string name="continue_how">Ab dieser Stellung weiterspielen</string>
+    <string name="vs_computer_as_white">Gegen den Computer, du spielst Weiß</string>
+    <string name="vs_computer_as_black">Gegen den Computer, du spielst Schwarz</string>
+    <string name="unknown_player">Unbekannt</string>
+    <string name="loading">Lädt…</string>
 </resources>

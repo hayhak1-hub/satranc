@@ -3,7 +3,6 @@ package com.thunderbascraft.satranc.ui
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -39,6 +38,7 @@ import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -116,6 +116,7 @@ fun GameScreen(
     val whiteName = stringResource(R.string.white)
     val blackName = stringResource(R.string.black)
     val copied = stringResource(R.string.copied)
+    val saver = rememberPgnSaver()
 
     val topSide = if (state.flipped) Side.WHITE else Side.BLACK
     val levelLabel = levelName(state.level)
@@ -144,9 +145,11 @@ fun GameScreen(
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         MenuItem(Icons.Filled.Share, stringResource(R.string.share_pgn)) {
                             menuOpen = false
-                            val pgn = vm.pgn(label(Side.WHITE), label(Side.BLACK))
-                            val send = Intent(Intent.ACTION_SEND).setType("application/x-chess-pgn").putExtra(Intent.EXTRA_TEXT, pgn)
-                            context.startActivity(Intent.createChooser(send, null))
+                            sharePgn(context, vm.pgn(label(Side.WHITE), label(Side.BLACK)))
+                        }
+                        MenuItem(Icons.Filled.Save, stringResource(R.string.save_pgn)) {
+                            menuOpen = false
+                            saver.save(vm.pgn(label(Side.WHITE), label(Side.BLACK)))
                         }
                         MenuItem(Icons.Filled.ContentCopy, stringResource(R.string.copy_fen)) {
                             menuOpen = false

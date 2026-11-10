@@ -100,4 +100,25 @@
     <string name="piece_rook">Kale</string>
     <string name="piece_bishop">Fil</string>
     <string name="piece_knight">At</string>
+    <string name="import_pgn">PGN içe aktar</string>
+    <string name="open_pgn_file">.pgn dosyası aç</string>
+    <string name="paste_pgn">PGN yapıştır</string>
+    <string name="paste_pgn_hint">PGN metnini buraya yapıştır</string>
+    <string name="load">Yükle</string>
+    <string name="save_pgn">PGN kaydet…</string>
+    <string name="saved">Kaydedildi</string>
+    <string name="save_failed">Dosya kaydedilemedi</string>
+    <string name="choose_game">Bir oyun seç</string>
+    <string name="pgn_error_title">PGN içe aktarılamadı</string>
+    <string name="pgn_error_illegal">Geçersiz hamle: %1$s</string>
+    <string name="pgn_error_fen">Başlangıç konumu (FEN) geçersiz.</string>
+    <string name="pgn_error_empty">Bu PGN\'de oyun bulunamadı.</string>
+    <string name="pgn_error_read">Dosya okunamadı.</string>
+    <string name="review_title">Oyun inceleme</string>
+    <string name="continue_from_here">Buradan devam et</string>
+    <string name="continue_how">Bu konumdan devam et</string>
+    <string name="vs_computer_as_white">Bilgisayara karşı, sen beyazsın</string>
+    <string name="vs_computer_as_black">Bilgisayara karşı, sen siyahsın</string>
+    <string name="unknown_player">Bilinmiyor</string>
+    <string name="loading">Yükleniyor…</string>
 </resources>

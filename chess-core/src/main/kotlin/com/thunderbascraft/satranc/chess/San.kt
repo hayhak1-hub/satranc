@@ -48,5 +48,23 @@ object San {
                 of(position, it, legal).trimEnd('+', '#').replace("O", "0").replace("=", "") ==
                     clean.replace("O", "0").replace("=", "")
             }
+            ?: lenient(position, clean, legal)
+    }
+
+    private val LENIENT = Regex("""^([NBRQKP])?([a-h])?([1-8])?[x:-]?([a-h][1-8])=?([NBRQnbrq])?$""")
+
+    /** Accepts over-disambiguated or long-ish SAN such as "Ngf3", "Pe4", "e2-e4", "exd6", "e8Q". */
+    private fun lenient(position: Position, san: String, legal: List<Move>): Move? {
+        val m = LENIENT.matchEntire(san) ?: return null
+        val (pieceL, fileL, rankL, target, promoL) = m.destructured
+        val type = if (pieceL.isEmpty()) PieceType.PAWN else PieceType.fromLetter(pieceL[0])!!
+        val to = Square.parse(target)
+        val promo = promoL.firstOrNull()?.let { PieceType.fromLetter(it) }
+        val candidates = legal.filter {
+            it.to == to && position.pieceAt(it.from)?.type == type && it.promotion == promo &&
+                (fileL.isEmpty() || Square.file(it.from) == fileL[0] - 'a') &&
+                (rankL.isEmpty() || Square.rank(it.from) == rankL[0] - '1')
+        }
+        return candidates.singleOrNull()
     }
 }

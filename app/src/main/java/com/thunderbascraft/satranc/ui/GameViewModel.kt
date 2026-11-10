@@ -9,6 +9,9 @@ import com.thunderbascraft.satranc.chess.Evaluation
 import com.thunderbascraft.satranc.chess.Game
 import com.thunderbascraft.satranc.chess.GameAnalysis
 import com.thunderbascraft.satranc.chess.PlayedMove
+import com.thunderbascraft.satranc.chess.Pgn
+import com.thunderbascraft.satranc.chess.PgnGame
+import com.thunderbascraft.satranc.chess.PgnException
 import java.io.IOException
 import com.thunderbascraft.satranc.chess.GameResult
 import com.thunderbascraft.satranc.chess.Move
@@ -67,6 +70,20 @@ data class AnalysisUiState(
     val total: Int get() = positions.size
     val done: Int get() = evaluations.size
     val complete: Boolean get() = evaluations.size == positions.size
+}
+
+/** An imported game shown in the review screen. */
+data class ReviewState(val pgn: PgnGame, val selectedPly: Int)
+
+/** Progress of a PGN import. */
+sealed interface ImportState {
+    data object Idle : ImportState
+    data object Busy : ImportState
+    /** The file has several games: let the user pick one. */
+    data class Choose(val games: List<PgnGame>) : ImportState
+    data class Failed(val error: Throwable) : ImportState
+    /** A game was opened in the review; the UI navigates there and calls dismissImport(). */
+    data object Opened : ImportState
 }
 
 /** State of the Stockfish 19 network download shown in the settings. */
@@ -209,8 +226,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     fun startAnalysis() {
         cancelEngine()
         _state.update { it.copy(thinking = false) }
-        val positions = game.positionsHistory
-        val moves = game.moves
+        val target = analysisTarget ?: game
+        val positions = target.positionsHistory
+        val moves = target.moves
         val current = _analysis.value
         val sameGame = current.engine == _engineKind.value &&
             current.positions.firstOrNull() == positions.first() &&
@@ -226,7 +244,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             engine = _engineKind.value,
         )
         if (kept.size == positions.size) return
-        val fen = game.startPosition.toFen()
+        val fen = target.startPosition.toFen()
         val uci = moves.map { it.move.uci }
         analysisJob?.cancel()
         analysisJob = viewModelScope.launch {
@@ -258,6 +276,87 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun selectPly(ply: Int) = _analysis.update { it.copy(selectedPly = ply.coerceIn(0, it.moves.size)) }
+
+    // ------------------------------------------------------------ imported games (review)
+
+    private val _review = MutableStateFlow<ReviewState?>(null)
+    /** An imported PGN game being reviewed, or null. */
+    val review: StateFlow<ReviewState?> = _review.asStateFlow()
+
+    /** The game the analysis screen works on: the reviewed game, or null for the current game. */
+    private var analysisTarget: Game? = null
+
+    private val _import = MutableStateFlow<ImportState>(ImportState.Idle)
+    val importState: StateFlow<ImportState> = _import.asStateFlow()
+
+    /**
+     * Parses PGN text in the background. One game opens the review directly, several games
+     * ask the user to choose; games that cannot be read are skipped unless none can be.
+     */
+    fun importPgn(text: String) {
+        _import.value = ImportState.Busy
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.Default) {
+                val raws = Pgn.splitGames(text)
+                if (raws.isEmpty()) return@withContext ImportState.Failed(PgnException(PgnException.Kind.NO_GAME))
+                var firstError: Throwable? = null
+                val games = raws.mapNotNull { raw ->
+                    runCatching { Pgn.parseGame(raw) }.onFailure { if (firstError == null) firstError = it }.getOrNull()
+                }
+                when {
+                    games.isEmpty() -> ImportState.Failed(firstError ?: PgnException(PgnException.Kind.NO_GAME))
+                    games.size == 1 -> { openReview(games.single()); ImportState.Opened }
+                    else -> ImportState.Choose(games)
+                }
+            }
+            _import.value = result
+        }
+    }
+
+    fun importFailed(error: Throwable) { _import.value = ImportState.Failed(error) }
+
+    fun chooseImported(game: PgnGame) {
+        openReview(game)
+        _import.value = ImportState.Opened
+    }
+
+    fun dismissImport() { _import.value = ImportState.Idle }
+
+    /** Shows an imported game in the review screen, at its final position. */
+    fun openReview(pgn: PgnGame) {
+        _review.value = ReviewState(pgn, pgn.game.moves.size)
+    }
+
+    fun reviewSelect(ply: Int) = _review.update { r -> r?.copy(selectedPly = ply.coerceIn(0, r.pgn.game.moves.size)) }
+
+    /** Chooses which game the next analysis is about: the reviewed one or the current game. */
+    fun analyseReview(review: Boolean) {
+        analysisTarget = if (review) _review.value?.pgn?.game else null
+    }
+
+    /**
+     * Continues the reviewed game from the selected position as a new game; the moves up to
+     * there are kept (for undo, repetition and PGN export).
+     */
+    fun continueFromReview(mode: Mode, humanSide: Side) {
+        val r = _review.value ?: return
+        val level = store.lastLevel
+        cancelEngine()
+        analysisTarget = null
+        game = Game(r.pgn.game.startPosition.toFen())
+        for (pm in r.pgn.game.moves.take(r.selectedPly)) game.play(pm.move)
+        _state.value = GameUiState(
+            mode = mode,
+            level = level,
+            humanSide = humanSide,
+            flipped = mode == Mode.VS_COMPUTER && humanSide == Side.BLACK,
+        )
+        refresh()
+        maybeEngineMove()
+    }
+
+    /** PGN of the reviewed game with its original tags. */
+    fun reviewPgn(): String? = _review.value?.let { Pgn.write(it.pgn.game, it.pgn.tags) }
 
     fun continueSaved() {
         val saved = store.load() ?: return newGame(Mode.TWO_PLAYERS)
@@ -437,7 +536,15 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     fun dismissEngineError() = _state.update { it.copy(engineError = false) }
 
-    fun pgn(white: String, black: String): String = game.toPgn(white, black)
+    /** PGN of the current game with today's date and the given player names. */
+    fun pgn(white: String, black: String): String = game.toPgn(
+        white, black,
+        date = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd")),
+    )
+
+    /** PGN of the game shown in the analysis: the reviewed game, or the current game. */
+    fun analysisPgn(white: String, black: String): String =
+        if (analysisTarget != null) reviewPgn() ?: pgn(white, black) else pgn(white, black)
 
     fun fen(): String = game.position.toFen()
 

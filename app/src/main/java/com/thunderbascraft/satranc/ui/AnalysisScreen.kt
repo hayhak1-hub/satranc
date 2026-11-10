@@ -29,6 +29,15 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FirstPage
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.automirrored.filled.LastPage
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
@@ -115,6 +124,30 @@ fun AnalysisScreen(vm: GameViewModel, onBack: () -> Unit, modifier: Modifier = M
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                }
+            },
+            actions = {
+                val context = LocalContext.current
+                val saver = rememberPgnSaver()
+                val whiteName = stringResource(R.string.white)
+                val blackName = stringResource(R.string.black)
+                var menuOpen by remember { mutableStateOf(false) }
+                Box {
+                    IconButton(onClick = { menuOpen = true }) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.more_options))
+                    }
+                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.share_pgn)) },
+                            leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
+                            onClick = { menuOpen = false; sharePgn(context, vm.analysisPgn(whiteName, blackName)) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.save_pgn)) },
+                            leadingIcon = { Icon(Icons.Filled.Save, contentDescription = null) },
+                            onClick = { menuOpen = false; saver.save(vm.analysisPgn(whiteName, blackName)) },
+                        )
+                    }
                 }
             },
             windowInsets = WindowInsets(0),

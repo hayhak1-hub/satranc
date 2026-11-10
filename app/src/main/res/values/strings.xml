@@ -105,4 +105,25 @@
     <string name="piece_rook">Rook</string>
     <string name="piece_bishop">Bishop</string>
     <string name="piece_knight">Knight</string>
+    <string name="import_pgn">Import PGN</string>
+    <string name="open_pgn_file">Open .pgn file</string>
+    <string name="paste_pgn">Paste PGN</string>
+    <string name="paste_pgn_hint">Paste the PGN text here</string>
+    <string name="load">Load</string>
+    <string name="save_pgn">Save PGN…</string>
+    <string name="saved">Saved</string>
+    <string name="save_failed">The file could not be saved</string>
+    <string name="choose_game">Choose a game</string>
+    <string name="pgn_error_title">PGN could not be imported</string>
+    <string name="pgn_error_illegal">Illegal move %1$s</string>
+    <string name="pgn_error_fen">The starting position (FEN) is invalid.</string>
+    <string name="pgn_error_empty">No game was found in this PGN.</string>
+    <string name="pgn_error_read">The file could not be read.</string>
+    <string name="review_title">Game review</string>
+    <string name="continue_from_here">Continue from here</string>
+    <string name="continue_how">Continue from this position</string>
+    <string name="vs_computer_as_white">Against the computer, you play White</string>
+    <string name="vs_computer_as_black">Against the computer, you play Black</string>
+    <string name="unknown_player">Unknown</string>
+    <string name="loading">Loading…</string>
 </resources>

@@ -99,42 +99,7 @@ class Game(startFen: String = Position.START_FEN) {
         black: String = "?",
         event: String = "Satranç",
         date: String = "????.??.??",
-    ): String = buildString {
-        val res = result?.pgn ?: "*"
-        appendLine("[Event \"$event\"]")
-        appendLine("[Site \"?\"]")
-        appendLine("[Date \"$date\"]")
-        appendLine("[Round \"-\"]")
-        appendLine("[White \"$white\"]")
-        appendLine("[Black \"$black\"]")
-        appendLine("[Result \"$res\"]")
-        if (startPosition.toFen() != Position.START_FEN) {
-            appendLine("[SetUp \"1\"]")
-            appendLine("[FEN \"${startPosition.toFen()}\"]")
-        }
-        appendLine()
-        val tokens = mutableListOf<String>()
-        var moveNo = startPosition.fullmoveNumber
-        var side = startPosition.sideToMove
-        for ((i, pm) in played.withIndex()) {
-            if (side == Side.WHITE) tokens.add("$moveNo.")
-            else if (i == 0) tokens.add("$moveNo...")
-            tokens.add(pm.san)
-            if (side == Side.BLACK) moveNo++
-            side = side.opposite
-        }
-        tokens.add(res)
-        // Wrap lines at ~80 characters.
-        var line = StringBuilder()
-        for (t in tokens) {
-            if (line.isNotEmpty() && line.length + 1 + t.length > 80) {
-                appendLine(line); line = StringBuilder()
-            }
-            if (line.isNotEmpty()) line.append(' ')
-            line.append(t)
-        }
-        appendLine(line)
-    }
+    ): String = Pgn.write(this, mapOf("Event" to event, "Date" to date, "White" to white, "Black" to black))
 
     companion object {
         fun isInsufficientMaterial(pos: Position): Boolean {
@@ -161,20 +126,7 @@ class Game(startFen: String = Position.START_FEN) {
             return true
         }
 
-        /** Parses the movetext of a PGN (tags are read for FEN only). */
-        fun fromPgn(pgn: String): Game {
-            val fen = Regex("\\[FEN \"([^\"]+)\"]").find(pgn)?.groupValues?.get(1)
-            val game = Game(fen ?: Position.START_FEN)
-            val movetext = pgn.lines().filterNot { it.trimStart().startsWith("[") }.joinToString(" ")
-                .replace(Regex("\\{[^}]*}"), " ")
-                .replace(Regex(";[^\\n]*"), " ")
-                .replace(Regex("\\([^)]*\\)"), " ")
-            for (raw in movetext.split(Regex("\\s+"))) {
-                val tok = raw.replace(Regex("^\\d+\\.+"), "").trim()
-                if (tok.isEmpty() || tok in setOf("1-0", "0-1", "1/2-1/2", "*") || tok.startsWith("$")) continue
-                require(game.playSan(tok)) { "Illegal move in PGN: $tok" }
-            }
-            return game
-        }
+        /** Parses the first game of a PGN. Throws [PgnException] if it cannot be read. */
+        fun fromPgn(pgn: String): Game = Pgn.parseAll(pgn).first().game
     }
 }

@@ -23,6 +23,15 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.ContentPaste
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -98,9 +107,21 @@ fun HomeScreen(
     onAbout: () -> Unit,
     modifier: Modifier = Modifier,
     onSettings: () -> Unit = {},
+    /** Called with PGN text read from a file or pasted. */
+    onImportText: (String) -> Unit = {},
+    onImportError: (Throwable) -> Unit = {},
 ) {
     var level by rememberSaveable { mutableStateOf(initialLevel) }
     var side by rememberSaveable { mutableStateOf(SideChoice.WHITE) }
+    var importMenu by remember { mutableStateOf(false) }
+    var pasteOpen by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    val openFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) runCatching { readPgnText(context, uri) }.fold(onImportText, onImportError)
+    }
+    if (pasteOpen) {
+        PastePgnDialog(onLoad = { pasteOpen = false; onImportText(it) }, onDismiss = { pasteOpen = false })
+    }
 
     Box(modifier.fillMaxSize()) {
         Column(
@@ -194,6 +215,23 @@ fun HomeScreen(
         }
 
         Row(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+            Box {
+                IconButton(onClick = { importMenu = true }) {
+                    Icon(Icons.Outlined.FileOpen, contentDescription = stringResource(R.string.import_pgn))
+                }
+                DropdownMenu(expanded = importMenu, onDismissRequest = { importMenu = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.open_pgn_file)) },
+                        leadingIcon = { Icon(Icons.Outlined.FolderOpen, contentDescription = null) },
+                        onClick = { importMenu = false; openFile.launch(PGN_OPEN_TYPES) },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.paste_pgn)) },
+                        leadingIcon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null) },
+                        onClick = { importMenu = false; pasteOpen = true },
+                    )
+                }
+            }
             IconButton(onClick = onSettings) {
                 Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings))
             }
