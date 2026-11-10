@@ -29,7 +29,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "SOURCE_URL", "\"https://github.com/hayhak1-hub/satranc\"")
+        buildConfigField("String", "SOURCE_URL", "\"https://github.com/hayhak1-hub/thunderChess\"")
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 
