@@ -33,6 +33,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         Text(stringResource(R.string.credits), style = MaterialTheme.typography.titleMedium)
         Text(stringResource(R.string.credits_stockfish))
         TextButton(onClick = { uri.openUri("https://stockfishchess.org") }) { Text("stockfishchess.org") }
+        Text(stringResource(R.string.credits_network))
         Text(stringResource(R.string.credits_pieces))
         Text(stringResource(R.string.license), style = MaterialTheme.typography.titleMedium)
         Text(stringResource(R.string.license_text), style = MaterialTheme.typography.bodySmall)

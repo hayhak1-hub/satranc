@@ -102,7 +102,16 @@ fun AnalysisScreen(vm: GameViewModel, onBack: () -> Unit, modifier: Modifier = M
 
     Column(modifier.fillMaxSize()) {
         TopAppBar(
-            title = { FitText(stringResource(R.string.analysis_title)) },
+            title = {
+                Column {
+                    FitText(stringResource(R.string.analysis_title))
+                    Text(
+                        stringResource(R.string.analysis_with, state.engine.displayName),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            },
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))

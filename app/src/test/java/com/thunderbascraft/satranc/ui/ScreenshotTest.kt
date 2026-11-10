@@ -127,6 +127,14 @@ class ScreenshotTest {
         save("analysis")
     }
 
+    @Test @Config(qualifiers = "tr-w411dp-h891dp-xxhdpi")
+    fun settingsScreen() {
+        assumeTrue(dir != null)
+        val vm = GameViewModel(androidx.test.core.app.ApplicationProvider.getApplicationContext())
+        compose.setContent { SatrancTheme { SettingsScreen(vm, onBack = {}) } }
+        save("settings")
+    }
+
     private fun saveBitmap(name: String, bmp: Bitmap) {
         dir!!.mkdirs()
         File(dir, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }

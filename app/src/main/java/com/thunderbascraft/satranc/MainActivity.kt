@@ -21,8 +21,9 @@ import com.thunderbascraft.satranc.ui.GameScreen
 import com.thunderbascraft.satranc.ui.GameViewModel
 import com.thunderbascraft.satranc.ui.HomeScreen
 import com.thunderbascraft.satranc.ui.SatrancTheme
+import com.thunderbascraft.satranc.ui.SettingsScreen
 
-private enum class Screen { HOME, GAME, ANALYSIS, ABOUT }
+private enum class Screen { HOME, GAME, ANALYSIS, SETTINGS, ABOUT }
 
 class MainActivity : ComponentActivity() {
     private val vm: GameViewModel by viewModels()
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
                                 screen = Screen.GAME
                             },
                             onAbout = { screen = Screen.ABOUT },
+                            onSettings = { screen = Screen.SETTINGS },
                             modifier = mod,
                         )
                         Screen.GAME -> {
@@ -65,6 +67,10 @@ class MainActivity : ComponentActivity() {
                         Screen.ANALYSIS -> {
                             BackHandler { screen = Screen.GAME }
                             AnalysisScreen(vm, onBack = { screen = Screen.GAME }, modifier = mod)
+                        }
+                        Screen.SETTINGS -> {
+                            BackHandler { screen = Screen.HOME }
+                            SettingsScreen(vm, onBack = { screen = Screen.HOME }, modifier = mod)
                         }
                         Screen.ABOUT -> {
                             BackHandler { screen = Screen.HOME }

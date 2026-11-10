@@ -13,7 +13,11 @@ import java.io.File
 import java.io.IOException
 
 /** Runs the bundled Stockfish binary as a separate process and talks UCI to it. */
-class StockfishEngine(private val executable: File) : ChessEngine {
+class StockfishEngine(
+    private val executable: File,
+    /** NNUE network for engines built without an embedded one (Stockfish 19). */
+    private val evalFile: File? = null,
+) : ChessEngine {
 
     constructor(context: Context) : this(File(context.applicationInfo.nativeLibraryDir, "libstockfish.so"))
 
@@ -45,6 +49,7 @@ class StockfishEngine(private val executable: File) : ChessEngine {
         readUntil("uciok")
         send("setoption name Threads value 1")
         send("setoption name Hash value 16")
+        evalFile?.let { send("setoption name EvalFile value ${it.absolutePath}") }
         send("isready")
         readUntil("readyok")
     }

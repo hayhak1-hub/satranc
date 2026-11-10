@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -96,6 +97,7 @@ fun HomeScreen(
     onTwoPlayers: () -> Unit,
     onAbout: () -> Unit,
     modifier: Modifier = Modifier,
+    onSettings: () -> Unit = {},
 ) {
     var level by rememberSaveable { mutableStateOf(initialLevel) }
     var side by rememberSaveable { mutableStateOf(SideChoice.WHITE) }
@@ -191,8 +193,13 @@ fun HomeScreen(
             Spacer(Modifier.height(8.dp))
         }
 
-        IconButton(onClick = onAbout, modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
-            Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about))
+        Row(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+            IconButton(onClick = onSettings) {
+                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings))
+            }
+            IconButton(onClick = onAbout) {
+                Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about))
+            }
         }
     }
 }

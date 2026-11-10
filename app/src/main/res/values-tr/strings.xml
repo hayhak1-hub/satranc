@@ -53,7 +53,7 @@
     <string name="about_text">Satranç özgür bir yazılımdır ve GNU Genel Kamu Lisansı sürüm 3 ile yayınlanır. Reklam ve uygulama içi satın alma yoktur, hiçbir veri toplanmaz.</string>
     <string name="source_code">Kaynak kod</string>
     <string name="credits">Emeği geçenler</string>
-    <string name="credits_stockfish">Satranç motoru: Stockfish 11, © Stockfish geliştiricileri (bkz. AUTHORS), GPLv3.</string>
+    <string name="credits_stockfish">Satranç motorları: Stockfish 11 ve Stockfish 19, © Stockfish geliştiricileri (bkz. AUTHORS), GPLv3.</string>
     <string name="credits_pieces">Taş seti: Colin M.L. Burnett (cburnett), GPLv2 veya sonrası.</string>
     <string name="license">Lisans</string>
     <string name="license_text">Bu program faydalı olması umuduyla dağıtılmaktadır, ancak HİÇBİR GARANTİ VERİLMEZ; SATILABİLİRLİK veya BELİRLİ BİR AMACA UYGUNLUK zımni garantisi dahil. Ayrıntılar için GNU Genel Kamu Lisansı\'na bakın.</string>
@@ -78,4 +78,20 @@
     <string name="game_over">Oyun bitti</string>
     <string name="to_move">oynayacak</string>
     <string name="no_moves_yet">Henüz hamle yok</string>
+    <string name="settings">Ayarlar</string>
+    <string name="engine">Motor</string>
+    <string name="engine_note">Bilgisayara karşı oyunlarda ve analizde kullanılır.</string>
+    <string name="engine_sf11_desc">Dahili · 1 MB</string>
+    <string name="engine_sf19_desc">En güçlü · ~98 MB indirme</string>
+    <string name="engine_sf19_ready">En güçlü · indirildi (94 MB)</string>
+    <string name="download_title">Stockfish 19 indirilsin mi?</string>
+    <string name="download_text">Stockfish 19 için yaklaşık 98 MB\'lık sinir ağı dosyası indirilecek. Wi-Fi kullanman önerilir.</string>
+    <string name="download">İndir</string>
+    <string name="cancel">İptal</string>
+    <string name="downloading">İndiriliyor… %1$d / %2$d MB</string>
+    <string name="download_failed">İndirme başarısız: %1$s</string>
+    <string name="retry">Tekrar dene</string>
+    <string name="delete_download">İndirmeyi sil</string>
+    <string name="analysis_with">%1$s ile analiz</string>
+    <string name="credits_network">Stockfish 19 ağ dosyası (nn-1a298aa575a0.nnue) Stockfish projesinden, istek üzerine indirilir.</string>
 </resources>

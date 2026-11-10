@@ -53,7 +53,7 @@
     <string name="about_text">Satranç ist freie Software unter der GNU General Public License Version 3. Keine Werbung, keine In-App-Käufe, es werden keine Daten erhoben.</string>
     <string name="source_code">Quellcode</string>
     <string name="credits">Danksagungen</string>
-    <string name="credits_stockfish">Schach-Engine: Stockfish 11, © die Stockfish-Entwickler (siehe AUTHORS), GPLv3.</string>
+    <string name="credits_stockfish">Schach-Engines: Stockfish 11 und Stockfish 19, © die Stockfish-Entwickler (siehe AUTHORS), GPLv3.</string>
     <string name="credits_pieces">Figurensatz: Colin M.L. Burnett (cburnett), GPLv2 oder später.</string>
     <string name="license">Lizenz</string>
     <string name="license_text">Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist, jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. Details finden Sie in der GNU General Public License.</string>
@@ -78,4 +78,20 @@
     <string name="game_over">Partie beendet</string>
     <string name="to_move">am Zug</string>
     <string name="no_moves_yet">Noch keine Züge</string>
+    <string name="settings">Einstellungen</string>
+    <string name="engine">Engine</string>
+    <string name="engine_note">Wird für Partien gegen den Computer und für die Analyse verwendet.</string>
+    <string name="engine_sf11_desc">Integriert · 1 MB</string>
+    <string name="engine_sf19_desc">Am stärksten · ~98 MB Download</string>
+    <string name="engine_sf19_ready">Am stärksten · heruntergeladen (94 MB)</string>
+    <string name="download_title">Stockfish 19 herunterladen?</string>
+    <string name="download_text">Stockfish 19 benötigt seine Netzwerkdatei (ca. 98 MB). WLAN wird empfohlen.</string>
+    <string name="download">Herunterladen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="downloading">Lade herunter… %1$d / %2$d MB</string>
+    <string name="download_failed">Download fehlgeschlagen: %1$s</string>
+    <string name="retry">Erneut versuchen</string>
+    <string name="delete_download">Download löschen</string>
+    <string name="analysis_with">Analyse mit %1$s</string>
+    <string name="credits_network">Stockfish-19-Netzwerkdatei (nn-1a298aa575a0.nnue) vom Stockfish-Projekt, wird auf Wunsch heruntergeladen.</string>
 </resources>

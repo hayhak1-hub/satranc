@@ -54,7 +54,7 @@
     <string name="about_text">Satranç is free software, released under the GNU General Public License version 3. It has no ads, no in-app purchases and collects no data.</string>
     <string name="source_code">Source code</string>
     <string name="credits">Credits</string>
-    <string name="credits_stockfish">Chess engine: Stockfish 11, © the Stockfish developers (see AUTHORS), GPLv3.</string>
+    <string name="credits_stockfish">Chess engines: Stockfish 11 and Stockfish 19, © the Stockfish developers (see AUTHORS), GPLv3.</string>
     <string name="credits_pieces">Piece set: Colin M.L. Burnett (cburnett), GPLv2 or later.</string>
     <string name="license">License</string>
     <string name="license_text">This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</string>
@@ -79,4 +79,20 @@
     <string name="game_over">Game over</string>
     <string name="to_move">to move</string>
     <string name="no_moves_yet">No moves yet</string>
+    <string name="settings">Settings</string>
+    <string name="engine">Engine</string>
+    <string name="engine_note">Used for games against the computer and for the analysis.</string>
+    <string name="engine_sf11_desc">Built in · 1 MB</string>
+    <string name="engine_sf19_desc">Strongest · ~98 MB download</string>
+    <string name="engine_sf19_ready">Strongest · downloaded (94 MB)</string>
+    <string name="download_title">Download Stockfish 19?</string>
+    <string name="download_text">Stockfish 19 needs its neural network file (about 98 MB). Using Wi-Fi is recommended.</string>
+    <string name="download">Download</string>
+    <string name="cancel">Cancel</string>
+    <string name="downloading">Downloading… %1$d / %2$d MB</string>
+    <string name="download_failed">Download failed: %1$s</string>
+    <string name="retry">Try again</string>
+    <string name="delete_download">Delete download</string>
+    <string name="analysis_with">Analysis with %1$s</string>
+    <string name="credits_network">Stockfish 19 network file (nn-1a298aa575a0.nnue) from the Stockfish project, downloaded on request.</string>
 </resources>
