@@ -29,9 +29,9 @@ const val PGN_MIME = "application/x-chess-pgn"
 /** MIME types accepted when opening a PGN file (many apps report .pgn files as text or binary). */
 val PGN_OPEN_TYPES = arrayOf(PGN_MIME, "application/vnd.chess-pgn", "text/plain", "application/octet-stream", "*/*")
 
-/** File name like satranc-2026-11-10-1430.pgn. */
+/** File name like thunderchess-2026-11-10-1430.pgn. */
 fun pgnFileName(): String =
-    "satranc-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm")) + ".pgn"
+    "thunderchess-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm")) + ".pgn"
 
 /** Shares [pgn] as a real .pgn file (FileProvider), with the text as a fallback. */
 fun sharePgn(context: Context, pgn: String) {

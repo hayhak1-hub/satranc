@@ -72,7 +72,7 @@ class NetDownloader(private val expectedSize: Long, private val expectedSha256: 
         val conn = URL(url).openConnection().apply {
             connectTimeout = 15_000
             readTimeout = 30_000
-            setRequestProperty("User-Agent", "Satranc-Android")
+            setRequestProperty("User-Agent", "ThunderChess-Android")
         }
         if (conn is HttpURLConnection && conn.responseCode !in 200..299) {
             conn.disconnect()

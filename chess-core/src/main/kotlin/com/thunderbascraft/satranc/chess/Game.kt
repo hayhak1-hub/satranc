@@ -105,7 +105,7 @@ class Game(startFen: String = Position.START_FEN) {
     fun toPgn(
         white: String = "?",
         black: String = "?",
-        event: String = "Satranç",
+        event: String = "ThunderChess",
         date: String = "????.??.??",
     ): String = Pgn.write(this, mapOf("Event" to event, "Date" to date, "White" to white, "Black" to black))
 

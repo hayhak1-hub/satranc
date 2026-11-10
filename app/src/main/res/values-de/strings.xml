@@ -50,7 +50,7 @@
     <string name="moves">Züge</string>
     <string name="you">Du</string>
     <string name="computer">Computer</string>
-    <string name="about_text">Satranç ist freie Software unter der GNU General Public License Version 3. Keine Werbung, keine In-App-Käufe, es werden keine Daten erhoben.</string>
+    <string name="about_text">ThunderChess ist freie Software unter der GNU General Public License Version 3. Keine Werbung, keine In-App-Käufe, es werden keine Daten erhoben.</string>
     <string name="source_code">Quellcode</string>
     <string name="credits">Danksagungen</string>
     <string name="credits_stockfish">Schach-Engines: Stockfish 11 und Stockfish 19, © die Stockfish-Entwickler (siehe AUTHORS), GPLv3.</string>

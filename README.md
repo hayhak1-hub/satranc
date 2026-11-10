@@ -1,4 +1,4 @@
-# Satranç
+# ThunderChess
 
 A free, ad-free chess app for Android by Thunderbascraft. Play against the
 computer (Stockfish, six difficulty levels) or with a friend on the same device.
@@ -46,7 +46,7 @@ To also run the engine tests, build a host Stockfish from `engine/stockfish`
 
 ## License
 
-Satranç is free software: you can redistribute it and/or modify it under the terms
+ThunderChess is free software: you can redistribute it and/or modify it under the terms
 of the GNU General Public License as published by the Free Software Foundation,
 either version 3 of the License, or (at your option) any later version. See
 [LICENSE](LICENSE).

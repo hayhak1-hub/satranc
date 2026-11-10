@@ -81,7 +81,7 @@ object HistoryRecords {
     fun fromSnapshot(s: GameSnapshot, now: Long): GameRecord {
         val reason = reasonOf(s.game.result)
         val tags = linkedMapOf(
-            "Event" to "Satranç",
+            "Event" to "ThunderChess",
             "Date" to pgnDate(s.startedAt),
             "White" to s.whiteName,
             "Black" to s.blackName,

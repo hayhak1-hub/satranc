@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "satranc"
+rootProject.name = "ThunderChess"
 include(":chess-core", ":app")

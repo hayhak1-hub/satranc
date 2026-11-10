@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Satranç</string>
+    <string name="app_name" translatable="false">ThunderChess</string>
     <string name="continue_game">Continue game</string>
     <string name="new_game">New game</string>
     <string name="vs_computer">Play vs computer</string>
@@ -51,7 +51,7 @@
     <string name="moves">Moves</string>
     <string name="you">You</string>
     <string name="computer">Computer</string>
-    <string name="about_text">Satranç is free software, released under the GNU General Public License version 3. It has no ads, no in-app purchases and collects no data.</string>
+    <string name="about_text">ThunderChess is free software, released under the GNU General Public License version 3. It has no ads, no in-app purchases and collects no data.</string>
     <string name="source_code">Source code</string>
     <string name="credits">Credits</string>
     <string name="credits_stockfish">Chess engines: Stockfish 11 and Stockfish 19, © the Stockfish developers (see AUTHORS), GPLv3.</string>

@@ -50,7 +50,7 @@
     <string name="moves">Hamleler</string>
     <string name="you">Sen</string>
     <string name="computer">Bilgisayar</string>
-    <string name="about_text">Satranç özgür bir yazılımdır ve GNU Genel Kamu Lisansı sürüm 3 ile yayınlanır. Reklam ve uygulama içi satın alma yoktur, hiçbir veri toplanmaz.</string>
+    <string name="about_text">ThunderChess özgür bir yazılımdır ve GNU Genel Kamu Lisansı sürüm 3 ile yayınlanır. Reklam ve uygulama içi satın alma yoktur, hiçbir veri toplanmaz.</string>
     <string name="source_code">Kaynak kod</string>
     <string name="credits">Emeği geçenler</string>
     <string name="credits_stockfish">Satranç motorları: Stockfish 11 ve Stockfish 19, © Stockfish geliştiricileri (bkz. AUTHORS), GPLv3.</string>
