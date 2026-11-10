@@ -3,6 +3,7 @@ agp = "9.4.0"
 kotlin = "2.4.21"
 composeBom = "2026.09.00"
 activityCompose = "1.13.0"
+appcompat = "1.8.0"
 lifecycle = "2.11.0"
 coreKtx = "1.19.1"
 coroutines = "1.11.0"
@@ -11,6 +12,7 @@ robolectric = "4.17"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }

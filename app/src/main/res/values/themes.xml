@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Satranc" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- AppCompat theme so that AppCompatActivity can switch the app language. -->
+    <style name="Theme.Satranc" parent="Theme.AppCompat.DayNight.NoActionBar" />
 </resources>

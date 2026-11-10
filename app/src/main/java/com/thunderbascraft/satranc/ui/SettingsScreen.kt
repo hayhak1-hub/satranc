@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.material.icons.filled.Translate
+import androidx.core.os.LocaleListCompat
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -141,6 +145,8 @@ fun SettingsScreen(vm: GameViewModel, onBack: () -> Unit, modifier: Modifier = M
                     }
                 }
             }
+            Spacer(Modifier.height(16.dp))
+            LanguageCard()
         }
     }
 
@@ -157,6 +163,54 @@ fun SettingsScreen(vm: GameViewModel, onBack: () -> Unit, modifier: Modifier = M
                 TextButton(onClick = { askDownload = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
+    }
+}
+
+/** App languages: tag ("" = follow the system) and the label resource. */
+private val Languages = listOf(
+    "" to R.string.language_system,
+    "tr" to R.string.language_tr,
+    "de" to R.string.language_de,
+    "en" to R.string.language_en,
+)
+
+/** The app language chosen with the per-app language API, "" when following the system. */
+private fun currentLanguage(): String =
+    AppCompatDelegate.getApplicationLocales().get(0)?.language.orEmpty()
+
+@Composable
+private fun LanguageCard() {
+    val current = remember { currentLanguage() }
+    ElevatedCard(Modifier.widthIn(max = 520.dp).fillMaxWidth()) {
+        Column(Modifier.padding(16.dp).selectableGroup(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.Translate, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                Spacer(Modifier.width(10.dp))
+                Text(stringResource(R.string.language_title), style = MaterialTheme.typography.titleLarge)
+            }
+            for ((tag, label) in Languages) {
+                val selected = current == tag || (tag.isNotEmpty() && current.startsWith(tag))
+                Row(
+                    Modifier.fillMaxWidth()
+                        .selectable(
+                            selected = selected,
+                            onClick = {
+                                if (!selected) {
+                                    // Recreates the activity; the screen and game survive (saveable state, ViewModel).
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+                                }
+                            },
+                            role = Role.RadioButton,
+                        )
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = selected, onClick = null)
+                    Spacer(Modifier.width(12.dp))
+                    Text(stringResource(label), style = MaterialTheme.typography.titleMedium)
+                }
+            }
+        }
     }
 }
 

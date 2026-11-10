@@ -95,4 +95,14 @@
     <string name="delete_download">Delete download</string>
     <string name="analysis_with">Analysis with %1$s</string>
     <string name="credits_network">Stockfish 19 network file (nn-1a298aa575a0.nnue) from the Stockfish project, downloaded on request.</string>
+    <string name="language_title" translatable="false">Dil · Language · Sprache</string>
+    <string name="language_system">System default</string>
+    <string name="language_tr" translatable="false">Türkçe</string>
+    <string name="language_de" translatable="false">Deutsch</string>
+    <string name="language_en" translatable="false">English</string>
+    <string name="ok">OK</string>
+    <string name="piece_queen">Queen</string>
+    <string name="piece_rook">Rook</string>
+    <string name="piece_bishop">Bishop</string>
+    <string name="piece_knight">Knight</string>
 </resources>

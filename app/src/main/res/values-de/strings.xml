@@ -94,4 +94,10 @@
     <string name="delete_download">Download löschen</string>
     <string name="analysis_with">Analyse mit %1$s</string>
     <string name="credits_network">Stockfish-19-Netzwerkdatei (nn-1a298aa575a0.nnue) vom Stockfish-Projekt, wird auf Wunsch heruntergeladen.</string>
+    <string name="language_system">Systemsprache</string>
+    <string name="ok">OK</string>
+    <string name="piece_queen">Dame</string>
+    <string name="piece_rook">Turm</string>
+    <string name="piece_bishop">Läufer</string>
+    <string name="piece_knight">Springer</string>
 </resources>

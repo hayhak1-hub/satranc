@@ -94,4 +94,10 @@
     <string name="delete_download">İndirmeyi sil</string>
     <string name="analysis_with">%1$s ile analiz</string>
     <string name="credits_network">Stockfish 19 ağ dosyası (nn-1a298aa575a0.nnue) Stockfish projesinden, istek üzerine indirilir.</string>
+    <string name="language_system">Sistem dili</string>
+    <string name="ok">Tamam</string>
+    <string name="piece_queen">Vezir</string>
+    <string name="piece_rook">Kale</string>
+    <string name="piece_bishop">Fil</string>
+    <string name="piece_knight">At</string>
 </resources>

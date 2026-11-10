@@ -50,6 +50,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -256,7 +257,7 @@ fun GameScreen(
     if (state.engineError) {
         AlertDialog(
             onDismissRequest = vm::dismissEngineError,
-            confirmButton = { TextButton(onClick = vm::dismissEngineError) { Text("OK") } },
+            confirmButton = { TextButton(onClick = vm::dismissEngineError) { Text(stringResource(R.string.ok)) } },
             text = { Text(stringResource(R.string.engine_error)) },
         )
     }
@@ -273,14 +274,17 @@ private fun ColumnScope.GameDetails(state: GameUiState, onAnalyse: () -> Unit, v
                 toMove == Side.WHITE -> stringResource(R.string.white_to_move)
                 else -> stringResource(R.string.black_to_move)
             }
-            Text(
-                status,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = if (state.result != null) FontWeight.Bold else FontWeight.Normal,
-                color = if (state.result != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            // Fixed single line, so that nothing moves when the status changes.
+            ProvideTextStyle(
+                MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = if (state.result != null) FontWeight.Bold else FontWeight.Normal,
+                    color = if (state.result != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                )
+            ) {
+                Box(Modifier.fillMaxWidth().height(28.dp), contentAlignment = Alignment.Center) {
+                    FitText(status, textAlign = TextAlign.Center)
+                }
+            }
 
             MoveList(state.sanMoves)
 
@@ -314,16 +318,19 @@ private fun ActionButton(icon: ImageVector, label: String, enabled: Boolean, onC
 }
 
 @Composable
-private fun PlayerBar(name: String, side: Side, active: Boolean, thinking: Boolean) {
+internal fun PlayerBar(name: String, side: Side, active: Boolean, thinking: Boolean) {
     val scheme = MaterialTheme.colorScheme
+    // Everything here has a fixed height, so the board never moves when the turn or
+    // the "thinking" state changes.
+    Column(Modifier.fillMaxWidth()) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = if (active) scheme.primaryContainer else scheme.surfaceContainer,
         contentColor = if (active) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
-        border = if (active) BorderStroke(1.5.dp, scheme.primary) else null,
+        border = BorderStroke(1.5.dp, if (active) scheme.primary else Color.Transparent),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.height(40.dp).padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(
                 shape = CircleShape,
                 color = if (side == Side.WHITE) Color.White else Color(0xFF262421),
@@ -341,7 +348,10 @@ private fun PlayerBar(name: String, side: Side, active: Boolean, thinking: Boole
             }
         }
     }
-    if (thinking) LinearProgressIndicator(Modifier.fillMaxWidth().height(2.dp).padding(horizontal = 12.dp))
+    Box(Modifier.fillMaxWidth().height(3.dp).padding(horizontal = 12.dp)) {
+        if (thinking) LinearProgressIndicator(Modifier.fillMaxSize())
+    }
+    }
 }
 
 @Composable
@@ -349,19 +359,20 @@ private fun MoveList(moves: List<String>) {
     val listState = rememberLazyListState()
     val pairs = moves.chunked(2)
     LaunchedEffect(pairs.size) { if (pairs.isNotEmpty()) listState.animateScrollToItem(pairs.lastIndex) }
-    Surface(shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.fillMaxWidth()) {
+    Surface(shape = RoundedCornerShape(10.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = Modifier.fillMaxWidth().height(40.dp)) {
+      Box(contentAlignment = Alignment.CenterStart) {
         if (pairs.isEmpty()) {
             Text(
                 stringResource(R.string.no_moves_yet),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 12.dp),
             )
         } else {
             LazyRow(
                 state = listState,
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             ) {
                 itemsIndexed(pairs) { i, pair ->
                     Row {
@@ -372,6 +383,7 @@ private fun MoveList(moves: List<String>) {
                 }
             }
         }
+      }
     }
 }
 
@@ -416,7 +428,15 @@ private fun PromotionDialog(side: Side, onChoose: (PieceType?) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(PieceType.QUEEN, PieceType.ROOK, PieceType.BISHOP, PieceType.KNIGHT).forEach { t ->
                     IconButton(onClick = { onChoose(t) }, modifier = Modifier.size(56.dp)) {
-                        Image(painterResource(pieceDrawable(Piece(t, side))), contentDescription = t.name, modifier = Modifier.size(48.dp))
+                        val name = stringResource(
+                            when (t) {
+                                PieceType.QUEEN -> R.string.piece_queen
+                                PieceType.ROOK -> R.string.piece_rook
+                                PieceType.BISHOP -> R.string.piece_bishop
+                                else -> R.string.piece_knight
+                            }
+                        )
+                        Image(painterResource(pieceDrawable(Piece(t, side))), contentDescription = name, modifier = Modifier.size(48.dp))
                     }
                 }
             }

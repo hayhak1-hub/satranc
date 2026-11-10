@@ -1,7 +1,7 @@
 package com.thunderbascraft.satranc
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,7 +25,7 @@ import com.thunderbascraft.satranc.ui.SettingsScreen
 
 private enum class Screen { HOME, GAME, ANALYSIS, SETTINGS, ABOUT }
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val vm: GameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
