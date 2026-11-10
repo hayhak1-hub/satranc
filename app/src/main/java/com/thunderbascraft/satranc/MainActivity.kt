@@ -16,12 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.thunderbascraft.satranc.data.Mode
 import com.thunderbascraft.satranc.ui.AboutScreen
+import com.thunderbascraft.satranc.ui.AnalysisScreen
 import com.thunderbascraft.satranc.ui.GameScreen
 import com.thunderbascraft.satranc.ui.GameViewModel
 import com.thunderbascraft.satranc.ui.HomeScreen
 import com.thunderbascraft.satranc.ui.SatrancTheme
 
-private enum class Screen { HOME, GAME, ABOUT }
+private enum class Screen { HOME, GAME, ANALYSIS, ABOUT }
 
 class MainActivity : ComponentActivity() {
     private val vm: GameViewModel by viewModels()
@@ -59,7 +60,11 @@ class MainActivity : ComponentActivity() {
                         )
                         Screen.GAME -> {
                             BackHandler { screen = Screen.HOME }
-                            GameScreen(vm, onMenu = { screen = Screen.HOME }, modifier = mod)
+                            GameScreen(vm, onMenu = { screen = Screen.HOME }, modifier = mod, onAnalyse = { screen = Screen.ANALYSIS })
+                        }
+                        Screen.ANALYSIS -> {
+                            BackHandler { screen = Screen.GAME }
+                            AnalysisScreen(vm, onBack = { screen = Screen.GAME }, modifier = mod)
                         }
                         Screen.ABOUT -> {
                             BackHandler { screen = Screen.HOME }

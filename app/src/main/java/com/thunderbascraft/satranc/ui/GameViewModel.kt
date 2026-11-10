@@ -1,9 +1,15 @@
 package com.thunderbascraft.satranc.ui
 
 import android.app.Application
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.thunderbascraft.satranc.chess.Analysis
+import com.thunderbascraft.satranc.chess.Evaluation
 import com.thunderbascraft.satranc.chess.Game
+import com.thunderbascraft.satranc.chess.GameAnalysis
+import com.thunderbascraft.satranc.chess.PlayedMove
+import java.io.IOException
 import com.thunderbascraft.satranc.chess.GameResult
 import com.thunderbascraft.satranc.chess.Move
 import com.thunderbascraft.satranc.chess.Position
@@ -41,9 +47,26 @@ data class GameUiState(
     val engineError: Boolean = false,
 )
 
+data class AnalysisUiState(
+    val positions: List<Position> = listOf(Position.start()),
+    val moves: List<PlayedMove> = emptyList(),
+    val evaluations: List<Evaluation> = emptyList(),
+    val analysis: GameAnalysis? = null,
+    val running: Boolean = false,
+    val failed: Boolean = false,
+    /** The shown position: 0 = start, n = after the n-th move. */
+    val selectedPly: Int = 0,
+) {
+    val total: Int get() = positions.size
+    val done: Int get() = evaluations.size
+    val complete: Boolean get() = evaluations.size == positions.size
+}
+
 class GameViewModel(app: Application) : AndroidViewModel(app) {
     private val store = GameStore(app)
-    private val engine: ChessEngine = StockfishEngine(app)
+    /** Replaceable in tests. */
+    @VisibleForTesting
+    internal var engine: ChessEngine = StockfishEngine(app)
 
     private var game = Game()
     private var engineJob: Job? = null
@@ -52,6 +75,10 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _state = MutableStateFlow(GameUiState())
     val state: StateFlow<GameUiState> = _state.asStateFlow()
+
+    private val _analysis = MutableStateFlow(AnalysisUiState())
+    val analysis: StateFlow<AnalysisUiState> = _analysis.asStateFlow()
+    private var analysisJob: Job? = null
 
     val savedGame: SavedGame? get() = store.load()?.takeIf { !it.finished && it.moves.isNotEmpty() }
     val lastLevel: Level get() = store.lastLevel
@@ -69,6 +96,69 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         refresh()
         maybeEngineMove()
     }
+
+    /** Starts a new game with the same mode, level and colour. */
+    fun rematch() {
+        val s = _state.value
+        newGame(s.mode, s.level, s.humanSide)
+    }
+
+    // ------------------------------------------------------------ analysis
+
+    /**
+     * Starts (or resumes) the engine analysis of the current game. Evaluations that are
+     * already done for the same moves are kept, so leaving and reopening the screen resumes.
+     */
+    fun startAnalysis() {
+        cancelEngine()
+        _state.update { it.copy(thinking = false) }
+        val positions = game.positionsHistory
+        val moves = game.moves
+        val current = _analysis.value
+        val sameGame = current.positions.firstOrNull() == positions.first() &&
+            current.moves.map { it.move } == moves.map { it.move }
+        val kept = if (sameGame) current.evaluations else emptyList()
+        _analysis.value = AnalysisUiState(
+            positions = positions,
+            moves = moves,
+            evaluations = kept,
+            analysis = Analysis.analyse(positions, moves, kept),
+            running = kept.size < positions.size,
+            selectedPly = if (sameGame) current.selectedPly.coerceIn(0, moves.size) else moves.size,
+        )
+        if (kept.size == positions.size) return
+        val fen = game.startPosition.toFen()
+        val uci = moves.map { it.move.uci }
+        analysisJob?.cancel()
+        analysisJob = viewModelScope.launch {
+            val evals = kept.toMutableList()
+            try {
+                for (i in kept.size until positions.size) {
+                    val eval = Analysis.terminalEvaluation(positions[i])
+                        ?: engine.evaluate(fen, uci.subList(0, i), ANALYSIS_TIME_MS)
+                    evals.add(eval)
+                    val snapshot = evals.toList()
+                    _analysis.update {
+                        it.copy(evaluations = snapshot, analysis = Analysis.analyse(positions, moves, snapshot))
+                    }
+                }
+                _analysis.update { it.copy(running = false) }
+            } catch (e: IOException) {
+                _analysis.update { it.copy(running = false, failed = true) }
+            }
+        }
+    }
+
+    /** Stops the analysis (e.g. when the screen is left); finished evaluations are kept. */
+    fun stopAnalysis() {
+        analysisJob?.cancel()
+        analysisJob = null
+        _analysis.update { it.copy(running = false) }
+        // startAnalysis() stopped any pending computer move; let the computer continue.
+        if (!_state.value.thinking) maybeEngineMove()
+    }
+
+    fun selectPly(ply: Int) = _analysis.update { it.copy(selectedPly = ply.coerceIn(0, it.moves.size)) }
 
     fun continueSaved() {
         val saved = store.load() ?: return newGame(Mode.TWO_PLAYERS)
@@ -281,5 +371,6 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
 
     private companion object {
         const val RANDOM_MOVE_DELAY_MS = 400L
+        const val ANALYSIS_TIME_MS = 300L
     }
 }

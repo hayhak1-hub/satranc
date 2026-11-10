@@ -58,4 +58,24 @@
     <string name="license">Lisans</string>
     <string name="license_text">Bu program faydalı olması umuduyla dağıtılmaktadır, ancak HİÇBİR GARANTİ VERİLMEZ; SATILABİLİRLİK veya BELİRLİ BİR AMACA UYGUNLUK zımni garantisi dahil. Ayrıntılar için GNU Genel Kamu Lisansı\'na bakın.</string>
     <string name="engine_error">Satranç motoru başlatılamadı.</string>
+    <string name="tagline">Oyna, öğren, satrancını geliştir</string>
+    <string name="continue_desc">Yarım kalan oyununa devam et</string>
+    <string name="analyse">Analiz</string>
+    <string name="analyse_game">Oyunu analiz et</string>
+    <string name="analysis_title">Oyun analizi</string>
+    <string name="analysing">Analiz ediliyor %1$d/%2$d</string>
+    <string name="analysis_failed">Analiz tamamlanamadı.</string>
+    <string name="best_was">En iyisi %1$s idi</string>
+    <string name="best_move">En iyi hamle: %1$s</string>
+    <string name="inaccuracies">Yanlışlık</string>
+    <string name="mistakes">Hata</string>
+    <string name="blunders">Vahim hata</string>
+    <string name="average_loss">Ortalama kayıp</string>
+    <string name="start_position">Başlangıç konumu</string>
+    <string name="previous_move">Önceki hamle</string>
+    <string name="next_move">Sonraki hamle</string>
+    <string name="more_options">Diğer seçenekler</string>
+    <string name="game_over">Oyun bitti</string>
+    <string name="to_move">oynayacak</string>
+    <string name="no_moves_yet">Henüz hamle yok</string>
 </resources>

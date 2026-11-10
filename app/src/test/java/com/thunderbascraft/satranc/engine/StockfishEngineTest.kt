@@ -3,6 +3,7 @@ package com.thunderbascraft.satranc.engine
 import com.thunderbascraft.satranc.chess.Game
 import com.thunderbascraft.satranc.chess.Position
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -40,6 +41,18 @@ class StockfishEngineTest {
             val game = Game(fen)
             assertTrue(game.playUci(engine.bestMove(fen, emptyList(), Level.MASTER)!!))
             assertTrue(game.result != null)
+        } finally {
+            engine.close()
+        }
+    }
+
+    @Test fun evaluatesMateInOne() = runBlocking {
+        assumeTrue(exe?.canExecute() == true)
+        val engine = StockfishEngine(exe!!)
+        try {
+            val eval = engine.evaluate("6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1", emptyList(), 200)
+            assertEquals(1, eval.mateIn)
+            assertEquals("d1d8", eval.bestMoveUci)
         } finally {
             engine.close()
         }

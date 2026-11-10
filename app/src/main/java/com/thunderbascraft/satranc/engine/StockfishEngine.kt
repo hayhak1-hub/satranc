@@ -1,6 +1,8 @@
 package com.thunderbascraft.satranc.engine
 
 import android.content.Context
+import com.thunderbascraft.satranc.chess.Evaluation
+import com.thunderbascraft.satranc.chess.UciParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -47,29 +49,54 @@ class StockfishEngine(private val executable: File) : ChessEngine {
         readUntil("readyok")
     }
 
-    override suspend fun bestMove(startFen: String, moves: List<String>, level: Level): String? =
+    /** Reads lines up to and including the `bestmove` line. */
+    private fun readSearch(): List<String> {
+        val r = output ?: throw IOException("engine not running")
+        val lines = ArrayList<String>()
+        while (true) {
+            val line = r.readLine() ?: throw IOException("engine exited")
+            if (line.startsWith("info") && " score " in line || line.startsWith("bestmove")) lines.add(line)
+            if (line.startsWith("bestmove")) return lines
+        }
+    }
+
+    private fun positionCommand(startFen: String, moves: List<String>) = buildString {
+        append("position fen ").append(startFen)
+        if (moves.isNotEmpty()) append(" moves ").append(moves.joinToString(" "))
+    }
+
+    /** Runs [block] on the engine process under the mutex, restarting it after I/O errors. */
+    private suspend fun <T> withEngine(block: () -> T): T =
         mutex.withLock {
             withContext(Dispatchers.IO) {
                 try {
                     ensureStarted()
-                    send("ucinewgame")
-                    send("setoption name Skill Level value ${level.skill}")
-                    val pos = buildString {
-                        append("position fen ").append(startFen)
-                        if (moves.isNotEmpty()) append(" moves ").append(moves.joinToString(" "))
-                    }
-                    send(pos)
-                    send("isready")
-                    readUntil("readyok")
-                    send("go depth ${level.depth} movetime ${level.moveTimeMs}")
-                    val best = readUntil("bestmove").split(" ").getOrNull(1)
-                    if (best == null || best == "(none)") null else best
+                    block()
                 } catch (e: IOException) {
                     shutdown()
                     throw e
                 }
             }
         }
+
+    override suspend fun bestMove(startFen: String, moves: List<String>, level: Level): String? = withEngine {
+        send("ucinewgame")
+        send("setoption name Skill Level value ${level.skill}")
+        send(positionCommand(startFen, moves))
+        send("isready")
+        readUntil("readyok")
+        send("go depth ${level.depth} movetime ${level.moveTimeMs}")
+        UciParser.parseBestMove(readUntil("bestmove"))
+    }
+
+    override suspend fun evaluate(startFen: String, moves: List<String>, moveTimeMs: Long): Evaluation = withEngine {
+        send("setoption name Skill Level value 20")
+        send(positionCommand(startFen, moves))
+        send("isready")
+        readUntil("readyok")
+        send("go movetime $moveTimeMs")
+        UciParser.parseSearch(readSearch())
+    }
 
     private fun shutdown() {
         runCatching { send("quit") }

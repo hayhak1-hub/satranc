@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
@@ -82,6 +84,8 @@ fun ChessBoard(
     onDragStart: (Int) -> Boolean,
     onDrop: (Int?) -> Unit,
     modifier: Modifier = Modifier,
+    /** An optional arrow, e.g. the engine's best move in the analysis. */
+    arrow: Move? = null,
 ) {
     val painters = rememberPiecePainters()
     val textMeasurer = rememberTextMeasurer()
@@ -191,6 +195,11 @@ fun ChessBoard(
             }
         }
 
+        arrow?.let { m ->
+            val half = Offset(cell / 2, cell / 2)
+            drawArrow(topLeft(m.from) + half, topLeft(m.to) + half, cell)
+        }
+
         dragFrom?.let { from ->
             position.pieceAt(from)?.let { piece ->
                 val big = cell * 1.3f
@@ -198,6 +207,28 @@ fun ChessBoard(
             }
         }
     }
+}
+
+private val ArrowColor = Color(0xCC2E7D32)
+
+private fun DrawScope.drawArrow(from: Offset, to: Offset, cell: Float) {
+    val d = to - from
+    val len = d.getDistance()
+    if (len < 1f) return
+    val dir = d / len
+    val normal = Offset(-dir.y, dir.x)
+    val head = cell * 0.42f
+    val shaftEnd = to - dir * head
+    drawLine(ArrowColor, from, shaftEnd, strokeWidth = cell * 0.17f, cap = StrokeCap.Round)
+    val path = Path().apply {
+        moveTo(to.x, to.y)
+        val l = shaftEnd + normal * (head * 0.6f)
+        val r = shaftEnd - normal * (head * 0.6f)
+        lineTo(l.x, l.y)
+        lineTo(r.x, r.y)
+        close()
+    }
+    drawPath(path, ArrowColor)
 }
 
 private fun DrawScope.drawPiece(painter: Painter, topLeft: Offset, cell: Float) {

@@ -58,4 +58,24 @@
     <string name="license">Lizenz</string>
     <string name="license_text">Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist, jedoch OHNE JEDE GEWÄHRLEISTUNG; sogar ohne die implizite Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. Details finden Sie in der GNU General Public License.</string>
     <string name="engine_error">Die Schach-Engine konnte nicht gestartet werden.</string>
+    <string name="tagline">Spielen, lernen, besser werden</string>
+    <string name="continue_desc">Deine angefangene Partie weiterspielen</string>
+    <string name="analyse">Analyse</string>
+    <string name="analyse_game">Partie analysieren</string>
+    <string name="analysis_title">Partieanalyse</string>
+    <string name="analysing">Analysiere %1$d/%2$d</string>
+    <string name="analysis_failed">Die Analyse konnte nicht abgeschlossen werden.</string>
+    <string name="best_was">Besser war %1$s</string>
+    <string name="best_move">Bester Zug: %1$s</string>
+    <string name="inaccuracies">Ungenauigkeiten</string>
+    <string name="mistakes">Fehler</string>
+    <string name="blunders">Grobe Fehler</string>
+    <string name="average_loss">Ø Verlust</string>
+    <string name="start_position">Ausgangsstellung</string>
+    <string name="previous_move">Vorheriger Zug</string>
+    <string name="next_move">Nächster Zug</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="game_over">Partie beendet</string>
+    <string name="to_move">am Zug</string>
+    <string name="no_moves_yet">Noch keine Züge</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.thunderbascraft.satranc.engine
 
+import com.thunderbascraft.satranc.chess.Evaluation
+
 /**
  * The six difficulty levels. Stockfish is weakened through its "Skill Level"
  * option together with a search depth and time limit per move. Even at Skill
@@ -23,6 +25,12 @@ interface ChessEngine {
      * [startFen] after [moves] (UCI), or null if there is no legal move.
      */
     suspend fun bestMove(startFen: String, moves: List<String>, level: Level): String?
+
+    /**
+     * Evaluates the position reached from [startFen] after [moves] at full strength,
+     * searching for [moveTimeMs]. The score is from the side to move's point of view.
+     */
+    suspend fun evaluate(startFen: String, moves: List<String>, moveTimeMs: Long): Evaluation
 
     fun close()
 }
