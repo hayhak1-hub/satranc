@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
                             onOpenRecord = { openRecord(it, Screen.HOME) },
                             onOnline = { screen = Screen.ONLINE },
                             onlineResumeCode = online.resumable?.code?.takeIf { online.configured && online.code == null },
+                            onResumeOnline = { onlineVm.resume(); screen = Screen.ONLINE },
                             modifier = mod,
                         )
                         Screen.GAME -> {

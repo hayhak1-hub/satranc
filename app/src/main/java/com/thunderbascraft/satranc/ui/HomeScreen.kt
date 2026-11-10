@@ -137,6 +137,7 @@ fun HomeScreen(
     onOnline: () -> Unit = {},
     /** Code of an unfinished online game that can be resumed. */
     onlineResumeCode: String? = null,
+    onResumeOnline: () -> Unit = onOnline,
 ) {
     var level by rememberSaveable { mutableStateOf(initialLevel) }
     var side by rememberSaveable { mutableStateOf(SideChoice.WHITE) }
@@ -203,7 +204,7 @@ fun HomeScreen(
                 Hero()
 
                 if (canContinue) ContinueCard(onContinue)
-                onlineResumeCode?.let { OnlineResumeCard(it, onOnline) }
+                onlineResumeCode?.let { OnlineResumeCard(it, onResumeOnline) }
 
                 ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
