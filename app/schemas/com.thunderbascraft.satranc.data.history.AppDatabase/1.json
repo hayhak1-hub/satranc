@@ -1,0 +1,178 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "78656b6bec6c0630777174fbb4e80ced",
+    "entities": [
+      {
+        "tableName": "games",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `startedAt` INTEGER NOT NULL, `finishedAt` INTEGER, `mode` TEXT NOT NULL, `engine` TEXT, `level` INTEGER, `humanSide` TEXT, `result` TEXT NOT NULL, `reason` TEXT NOT NULL, `moveCount` INTEGER NOT NULL, `pgn` TEXT NOT NULL, `pgnHash` TEXT NOT NULL, `opening` TEXT NOT NULL, `white` TEXT, `black` TEXT, `analysis_whiteInaccuracies` INTEGER, `analysis_whiteMistakes` INTEGER, `analysis_whiteBlunders` INTEGER, `analysis_whiteAverageLoss` INTEGER, `analysis_blackInaccuracies` INTEGER, `analysis_blackMistakes` INTEGER, `analysis_blackBlunders` INTEGER, `analysis_blackAverageLoss` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "startedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finishedAt",
+            "columnName": "finishedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "engine",
+            "columnName": "engine",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "humanSide",
+            "columnName": "humanSide",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "result",
+            "columnName": "result",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "moveCount",
+            "columnName": "moveCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pgn",
+            "columnName": "pgn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pgnHash",
+            "columnName": "pgnHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "opening",
+            "columnName": "opening",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "white",
+            "columnName": "white",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "black",
+            "columnName": "black",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "analysis.whiteInaccuracies",
+            "columnName": "analysis_whiteInaccuracies",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.whiteMistakes",
+            "columnName": "analysis_whiteMistakes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.whiteBlunders",
+            "columnName": "analysis_whiteBlunders",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.whiteAverageLoss",
+            "columnName": "analysis_whiteAverageLoss",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.blackInaccuracies",
+            "columnName": "analysis_blackInaccuracies",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.blackMistakes",
+            "columnName": "analysis_blackMistakes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.blackBlunders",
+            "columnName": "analysis_blackBlunders",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "analysis.blackAverageLoss",
+            "columnName": "analysis_blackAverageLoss",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_games_finishedAt",
+            "unique": false,
+            "columnNames": [
+              "finishedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_games_finishedAt` ON `${TABLE_NAME}` (`finishedAt`)"
+          },
+          {
+            "name": "index_games_startedAt",
+            "unique": false,
+            "columnNames": [
+              "startedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_games_startedAt` ON `${TABLE_NAME}` (`startedAt`)"
+          },
+          {
+            "name": "index_games_pgnHash",
+            "unique": false,
+            "columnNames": [
+              "pgnHash"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_games_pgnHash` ON `${TABLE_NAME}` (`pgnHash`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '78656b6bec6c0630777174fbb4e80ced')"
+    ]
+  }
+}

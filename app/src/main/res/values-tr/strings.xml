@@ -121,4 +121,32 @@
     <string name="vs_computer_as_black">Bilgisayara karşı, sen siyahsın</string>
     <string name="unknown_player">Bilinmiyor</string>
     <string name="loading">Yükleniyor…</string>
+    <string name="computer_name">Bilgisayar (Seviye %1$d, %2$s)</string>
+    <string name="history">Oyun geçmişi</string>
+    <string name="recent_games">Son oyunlar</string>
+    <string name="see_all">Tümü</string>
+    <string name="filter_all">Tümü</string>
+    <string name="filter_computer">Bilgisayar</string>
+    <string name="filter_two">İki oyuncu</string>
+    <string name="filter_imported">İçe aktarılan</string>
+    <plurals name="games_count"><item quantity="one">%1$d oyun</item><item quantity="other">%1$d oyun</item></plurals>
+    <string name="stats_vs_computer">Bilgisayara karşı – galibiyet: %1$d · beraberlik: %2$d · mağlubiyet: %3$d</string>
+    <string name="outcome_win">Galibiyet</string>
+    <string name="outcome_loss">Mağlubiyet</string>
+    <string name="outcome_draw">Beraberlik</string>
+    <string name="outcome_unfinished">Yarım</string>
+    <string name="opponent_computer">Bilgisayar · Seviye %1$d · %2$s</string>
+    <string name="you_played">Sen: %1$s</string>
+    <plurals name="moves_count"><item quantity="one">%1$d hamle</item><item quantity="other">%1$d hamle</item></plurals>
+    <string name="export_all">Tümünü PGN olarak kaydet…</string>
+    <string name="share_all">Tümünü PGN olarak paylaş</string>
+    <string name="import_into_history">Geçmişe PGN içe aktar</string>
+    <string name="delete_all">Tümünü sil</string>
+    <string name="delete">Sil</string>
+    <plurals name="games_deleted"><item quantity="one">%1$d oyun silindi</item><item quantity="other">%1$d oyun silindi</item></plurals>
+    <string name="imported_summary">İçe aktarılan: %1$d · atlanan: %2$d</string>
+    <string name="select_all">Tümünü seç</string>
+    <string name="no_games">Henüz oyun yok. Biten oyunlar burada otomatik olarak görünür.</string>
+    <plurals name="confirm_delete_all"><item quantity="one">Geçmişteki %1$d oyun silinsin mi? Bu geri alınamaz.</item><item quantity="other">Geçmişteki %1$d oyunun tümü silinsin mi? Bu geri alınamaz.</item></plurals>
+    <plurals name="selected_count"><item quantity="one">%1$d seçildi</item><item quantity="other">%1$d seçildi</item></plurals>
 </resources>

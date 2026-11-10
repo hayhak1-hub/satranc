@@ -61,6 +61,14 @@ class Game(startFen: String = Position.START_FEN) {
 
     fun playSan(san: String): Boolean = San.parse(position, san)?.let(::play) ?: false
 
+    /** An independent copy (same start, moves and resignation/draw/timeout result). */
+    fun copy(): Game {
+        val g = Game(startPosition.toFen())
+        for (pm in played) g.play(pm.move)
+        g.externalResult = externalResult
+        return g
+    }
+
     fun canUndo(): Boolean = played.isNotEmpty() || externalResult != null
 
     /** Takes back a resignation/draw/timeout if there is one, otherwise the last move. */

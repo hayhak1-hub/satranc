@@ -171,7 +171,18 @@ fun ReviewScreen(
                 }
             }
         }
+        val unfinished = r.record?.let { !it.isFinished && it.mode != com.thunderbascraft.satranc.data.history.RecordMode.IMPORTED } == true
         val actions = @Composable {
+            if (unfinished) {
+                Button(
+                    onClick = { if (vm.continueRecord(r.record!!)) onContinue() },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                ) {
+                    Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    FitText(stringResource(R.string.continue_game))
+                }
+            }
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = onAnalyse, enabled = moves.isNotEmpty(), modifier = Modifier.weight(1f)) {
                     Icon(Icons.Filled.Insights, contentDescription = null, modifier = Modifier.size(18.dp))

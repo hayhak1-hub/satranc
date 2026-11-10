@@ -121,4 +121,32 @@
     <string name="vs_computer_as_black">Gegen den Computer, du spielst Schwarz</string>
     <string name="unknown_player">Unbekannt</string>
     <string name="loading">Lädt…</string>
+    <string name="computer_name">Computer (Stufe %1$d, %2$s)</string>
+    <string name="history">Partieverlauf</string>
+    <string name="recent_games">Letzte Partien</string>
+    <string name="see_all">Alle</string>
+    <string name="filter_all">Alle</string>
+    <string name="filter_computer">Computer</string>
+    <string name="filter_two">Zwei Spieler</string>
+    <string name="filter_imported">Importiert</string>
+    <plurals name="games_count"><item quantity="one">%1$d Partie</item><item quantity="other">%1$d Partien</item></plurals>
+    <string name="stats_vs_computer">Gegen den Computer – Siege: %1$d · Remis: %2$d · Niederlagen: %3$d</string>
+    <string name="outcome_win">Sieg</string>
+    <string name="outcome_loss">Niederlage</string>
+    <string name="outcome_draw">Remis</string>
+    <string name="outcome_unfinished">Unbeendet</string>
+    <string name="opponent_computer">Computer · Stufe %1$d · %2$s</string>
+    <string name="you_played">Du: %1$s</string>
+    <plurals name="moves_count"><item quantity="one">%1$d Zug</item><item quantity="other">%1$d Züge</item></plurals>
+    <string name="export_all">Alle als PGN speichern…</string>
+    <string name="share_all">Alle als PGN teilen</string>
+    <string name="import_into_history">PGN in den Verlauf importieren</string>
+    <string name="delete_all">Alle löschen</string>
+    <string name="delete">Löschen</string>
+    <plurals name="games_deleted"><item quantity="one">%1$d Partie gelöscht</item><item quantity="other">%1$d Partien gelöscht</item></plurals>
+    <string name="imported_summary">Importiert: %1$d · übersprungen: %2$d</string>
+    <string name="select_all">Alle auswählen</string>
+    <string name="no_games">Noch keine Partien. Beendete Partien erscheinen hier automatisch.</string>
+    <plurals name="confirm_delete_all"><item quantity="one">%1$d Partie aus dem Verlauf löschen? Das kann nicht rückgängig gemacht werden.</item><item quantity="other">Alle %1$d Partien aus dem Verlauf löschen? Das kann nicht rückgängig gemacht werden.</item></plurals>
+    <plurals name="selected_count"><item quantity="one">%1$d ausgewählt</item><item quantity="other">%1$d ausgewählt</item></plurals>
 </resources>

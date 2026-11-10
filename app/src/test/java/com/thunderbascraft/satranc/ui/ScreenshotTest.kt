@@ -156,6 +156,41 @@ class ScreenshotTest {
         save("review")
     }
 
+    @Test @Config(qualifiers = "tr-w411dp-h891dp-xxhdpi")
+    fun historyScreen() {
+        assumeTrue(dir != null)
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>()
+        val db = androidx.room.Room.inMemoryDatabaseBuilder(app, com.thunderbascraft.satranc.data.history.AppDatabase::class.java)
+            .allowMainThreadQueries().build()
+        val repo = com.thunderbascraft.satranc.data.history.HistoryRepository(db.games())
+        fun g(vararg san: String) = Game().also { x -> san.forEach { x.playSan(it) } }
+        fun snap(game: Game, mode: com.thunderbascraft.satranc.data.history.RecordMode, side: com.thunderbascraft.satranc.chess.Side?, level: Int?, engine: String?) =
+            com.thunderbascraft.satranc.data.history.GameSnapshot(null, System.currentTimeMillis(), game, mode, engine, level, side, "Sen", "Bilgisayar")
+        val vs = com.thunderbascraft.satranc.data.history.RecordMode.VS_COMPUTER
+        kotlinx.coroutines.runBlocking {
+        val win = g("e4", "e5", "Bc4", "Nc6", "Qh5", "Nf6", "Qxf7#")
+        val winId = repo.save(snap(win, vs, com.thunderbascraft.satranc.chess.Side.WHITE, 2, "SF11"))!!
+        val evals = List(win.positionsHistory.size) { i -> com.thunderbascraft.satranc.chess.Evaluation(if (i == 6) -900 else 30, null, null) }
+        repo.setAnalysis(winId, com.thunderbascraft.satranc.chess.Analysis.analyse(win.positionsHistory, win.moves, evals))
+        val loss = g("f3", "e5", "g4", "Qh4#")
+        repo.save(snap(loss, vs, com.thunderbascraft.satranc.chess.Side.WHITE, 5, "SF19"))
+        val draw = g("d4", "d5", "c4", "e6"); draw.agreeDraw()
+        repo.save(snap(draw, com.thunderbascraft.satranc.data.history.RecordMode.TWO_PLAYERS, null, null, null))
+        repo.save(snap(g("e4", "c5", "Nf3", "d6", "d4"), vs, com.thunderbascraft.satranc.chess.Side.BLACK, 3, "SF11"))
+        repo.importPgn("[White \"Paul Morphy\"]\n[Black \"Duke Karl\"]\n[Event \"Paris\"]\n[Result \"1-0\"]\n\n1. e4 e5 2. Nf3 d6 3. d4 Bg4 1-0")
+        }
+        val hvm = HistoryViewModel(app)
+        hvm.repo = repo
+        compose.setContent { SatrancTheme { HistoryScreen(hvm, onBack = {}, onOpen = {}) } }
+        compose.waitUntil(10_000) {
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+            hvm.state.value.all.size == 5
+        }
+        compose.waitForIdle()
+        save("history")
+        db.close()
+    }
+
     private fun saveBitmap(name: String, bmp: Bitmap) {
         dir!!.mkdirs()
         File(dir, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }

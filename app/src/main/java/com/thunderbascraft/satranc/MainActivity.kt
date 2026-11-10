@@ -25,6 +25,9 @@ import com.thunderbascraft.satranc.ui.AnalysisScreen
 import com.thunderbascraft.satranc.ui.GameScreen
 import com.thunderbascraft.satranc.ui.GameViewModel
 import com.thunderbascraft.satranc.ui.HomeScreen
+import com.thunderbascraft.satranc.ui.HistoryScreen
+import com.thunderbascraft.satranc.ui.HistoryViewModel
+import com.thunderbascraft.satranc.data.history.GameRecord
 import com.thunderbascraft.satranc.ui.ImportDialogs
 import com.thunderbascraft.satranc.ui.ImportState
 import com.thunderbascraft.satranc.ui.ReviewScreen
@@ -32,10 +35,11 @@ import com.thunderbascraft.satranc.ui.SatrancTheme
 import com.thunderbascraft.satranc.ui.SettingsScreen
 import com.thunderbascraft.satranc.ui.readPgnText
 
-private enum class Screen { HOME, GAME, ANALYSIS, REVIEW, SETTINGS, ABOUT }
+private enum class Screen { HOME, GAME, ANALYSIS, REVIEW, HISTORY, SETTINGS, ABOUT }
 
 class MainActivity : AppCompatActivity() {
     private val vm: GameViewModel by viewModels()
+    private val historyVm: HistoryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +51,17 @@ class MainActivity : AppCompatActivity() {
                 var gameLoaded by rememberSaveable { mutableStateOf(false) }
                 /** Where the analysis was opened from (GAME or REVIEW). */
                 var analysisFrom by rememberSaveable { mutableStateOf(Screen.GAME) }
+                /** Where the review was opened from (HOME, HISTORY). */
+                var reviewFrom by rememberSaveable { mutableStateOf(Screen.HOME) }
+                val history by historyVm.state.collectAsStateWithLifecycle()
+                fun openRecord(r: GameRecord, from: Screen) {
+                    if (vm.openRecord(r)) { reviewFrom = from; screen = Screen.REVIEW }
+                }
                 val importState by vm.importState.collectAsStateWithLifecycle()
 
                 LaunchedEffect(importState) {
                     if (importState == ImportState.Opened) {
+                        reviewFrom = Screen.HOME
                         screen = Screen.REVIEW
                         vm.dismissImport()
                     }
@@ -81,11 +92,14 @@ class MainActivity : AppCompatActivity() {
                             onSettings = { screen = Screen.SETTINGS },
                             onImportText = vm::importPgn,
                             onImportError = vm::importFailed,
+                            recent = history.all,
+                            onHistory = { screen = Screen.HISTORY },
+                            onOpenRecord = { openRecord(it, Screen.HOME) },
                             modifier = mod,
                         )
                         Screen.GAME -> {
-                            BackHandler { screen = Screen.HOME }
-                            GameScreen(vm, onMenu = { screen = Screen.HOME }, modifier = mod, onAnalyse = {
+                            BackHandler { vm.leaveGame(); screen = Screen.HOME }
+                            GameScreen(vm, onMenu = { vm.leaveGame(); screen = Screen.HOME }, modifier = mod, onAnalyse = {
                                 vm.analyseReview(false)
                                 analysisFrom = Screen.GAME
                                 screen = Screen.ANALYSIS
@@ -96,10 +110,10 @@ class MainActivity : AppCompatActivity() {
                             AnalysisScreen(vm, onBack = { screen = analysisFrom }, modifier = mod)
                         }
                         Screen.REVIEW -> {
-                            BackHandler { screen = Screen.HOME }
+                            BackHandler { screen = reviewFrom }
                             ReviewScreen(
                                 vm,
-                                onBack = { screen = Screen.HOME },
+                                onBack = { screen = reviewFrom },
                                 onAnalyse = {
                                     vm.analyseReview(true)
                                     analysisFrom = Screen.REVIEW
@@ -109,6 +123,15 @@ class MainActivity : AppCompatActivity() {
                                     gameLoaded = true
                                     screen = Screen.GAME
                                 },
+                                modifier = mod,
+                            )
+                        }
+                        Screen.HISTORY -> {
+                            BackHandler { screen = Screen.HOME }
+                            HistoryScreen(
+                                historyVm,
+                                onBack = { screen = Screen.HOME },
+                                onOpen = { openRecord(it, Screen.HISTORY) },
                                 modifier = mod,
                             )
                         }
@@ -126,6 +149,12 @@ class MainActivity : AppCompatActivity() {
                 ImportDialogs(importState, onChoose = vm::chooseImported, onDismiss = vm::dismissImport)
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Keep an unfinished game in the history if the app is closed.
+        vm.leaveGame()
     }
 
     override fun onNewIntent(intent: Intent) {

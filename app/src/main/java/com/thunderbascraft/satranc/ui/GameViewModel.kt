@@ -13,7 +13,16 @@ import com.thunderbascraft.satranc.chess.Pgn
 import com.thunderbascraft.satranc.chess.PgnGame
 import com.thunderbascraft.satranc.chess.PgnException
 import java.io.IOException
+import com.thunderbascraft.satranc.R
 import com.thunderbascraft.satranc.chess.GameResult
+import com.thunderbascraft.satranc.data.history.AppDatabase
+import com.thunderbascraft.satranc.data.history.GameRecord
+import com.thunderbascraft.satranc.data.history.GameSnapshot
+import com.thunderbascraft.satranc.data.history.HistoryRecords
+import com.thunderbascraft.satranc.data.history.HistoryRepository
+import com.thunderbascraft.satranc.data.history.RecordMode
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import com.thunderbascraft.satranc.chess.Move
 import com.thunderbascraft.satranc.chess.Position
 import com.thunderbascraft.satranc.chess.PieceType
@@ -73,7 +82,9 @@ data class AnalysisUiState(
 }
 
 /** An imported game shown in the review screen. */
-data class ReviewState(val pgn: PgnGame, val selectedPly: Int)
+data class ReviewState(val pgn: PgnGame, val selectedPly: Int, val record: GameRecord? = null) {
+    val recordId: Long? get() = record?.id
+}
 
 /** Progress of a PGN import. */
 sealed interface ImportState {
@@ -126,8 +137,71 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     val savedGame: SavedGame? get() = store.load()?.takeIf { !it.finished && it.moves.isNotEmpty() }
     val lastLevel: Level get() = store.lastLevel
 
+    // ------------------------------------------------------------ history
+
+    /** Replaceable in tests. */
+    @VisibleForTesting
+    internal var history = HistoryRepository(AppDatabase.get(app).games())
+
+    /** Identifies the current game; increases whenever another game is loaded. */
+    private var gameToken = 0
+    /** History record id per game token (records are created asynchronously). */
+    private val recordIds = HashMap<Int, Long>()
+    private var startedAt = System.currentTimeMillis()
+    private var lastSavedResult: GameResult? = null
+    private val historyMutex = Mutex()
+
+    private val recordId: Long? get() = recordIds[gameToken]
+
+    /** Saves the current game to the history (inserting or updating its record). */
+    private fun persistHistory() {
+        if (!HistoryRecords.shouldSave(game)) return
+        val s = _state.value
+        val token = gameToken
+        val app = getApplication<Application>()
+        fun name(side: Side): String = when {
+            s.mode == Mode.TWO_PLAYERS -> app.getString(if (side == Side.WHITE) R.string.white else R.string.black)
+            side == s.humanSide -> app.getString(R.string.you)
+            else -> app.getString(R.string.computer_name, s.level.number, _engineKind.value.displayName)
+        }
+        val snapshot = GameSnapshot(
+            recordId = null,
+            startedAt = startedAt,
+            game = game.copy(),
+            mode = if (s.mode == Mode.VS_COMPUTER) RecordMode.VS_COMPUTER else RecordMode.TWO_PLAYERS,
+            engine = if (s.mode == Mode.VS_COMPUTER) _engineKind.value.name else null,
+            level = if (s.mode == Mode.VS_COMPUTER) s.level.number else null,
+            humanSide = if (s.mode == Mode.VS_COMPUTER) s.humanSide else null,
+            whiteName = name(Side.WHITE),
+            blackName = name(Side.BLACK),
+        )
+        lastSavedResult = game.result
+        viewModelScope.launch {
+            historyMutex.withLock {
+                val id = runCatching {
+                    withContext(Dispatchers.IO) { history.save(snapshot.copy(recordId = recordIds[token])) }
+                }.getOrNull() ?: return@withLock
+                recordIds[token] = id
+                if (token == gameToken) save()
+            }
+        }
+    }
+
+    /** Called when the game screen is left or the app goes to the background. */
+    fun leaveGame() = persistHistory()
+
+    /** Starts bookkeeping for a newly loaded game, keeping the previous one in the history. */
+    private fun beginGame(existingRecord: Long? = null, started: Long = System.currentTimeMillis()) {
+        persistHistory()
+        gameToken++
+        existingRecord?.let { recordIds[gameToken] = it }
+        startedAt = started
+        lastSavedResult = null
+    }
+
     fun newGame(mode: Mode, level: Level = Level.CASUAL, humanSide: Side = Side.WHITE) {
         cancelEngine()
+        beginGame()
         game = Game()
         if (mode == Mode.VS_COMPUTER) store.lastLevel = level
         _state.value = GameUiState(
@@ -246,6 +320,9 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         if (kept.size == positions.size) return
         val fen = target.startPosition.toFen()
         val uci = moves.map { it.move.uci }
+        val isReview = analysisTarget != null
+        val reviewRecordId = _review.value?.recordId
+        val token = gameToken
         analysisJob?.cancel()
         analysisJob = viewModelScope.launch {
             val evals = kept.toMutableList()
@@ -260,6 +337,12 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
                 _analysis.update { it.copy(running = false) }
+                // Keep the counts in the history so the list can show them.
+                val id = if (isReview) reviewRecordId else recordIds[token]
+                val done = _analysis.value.analysis
+                if (id != null && done != null) {
+                    runCatching { withContext(Dispatchers.IO) { history.setAnalysis(id, done) } }
+                }
             } catch (e: IOException) {
                 _analysis.update { it.copy(running = false, failed = true) }
             }
@@ -305,8 +388,11 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 when {
                     games.isEmpty() -> ImportState.Failed(firstError ?: PgnException(PgnException.Kind.NO_GAME))
-                    games.size == 1 -> { openReview(games.single()); ImportState.Opened }
+                    games.size == 1 -> null
                     else -> ImportState.Choose(games)
+                } ?: run {
+                    openImported(games.single())
+                    ImportState.Opened
                 }
             }
             _import.value = result
@@ -316,15 +402,52 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     fun importFailed(error: Throwable) { _import.value = ImportState.Failed(error) }
 
     fun chooseImported(game: PgnGame) {
-        openReview(game)
-        _import.value = ImportState.Opened
+        viewModelScope.launch {
+            openImported(game)
+            _import.value = ImportState.Opened
+        }
+    }
+
+    /** Adds an imported game to the history (once) and opens it in the review. */
+    private suspend fun openImported(game: PgnGame) {
+        val id = runCatching { withContext(Dispatchers.IO) { history.addImportedOrFind(game) } }.getOrNull()
+        val record = id?.let { runCatching { withContext(Dispatchers.IO) { history.get(it) } }.getOrNull() }
+        openReview(game, record)
     }
 
     fun dismissImport() { _import.value = ImportState.Idle }
 
-    /** Shows an imported game in the review screen, at its final position. */
-    fun openReview(pgn: PgnGame) {
-        _review.value = ReviewState(pgn, pgn.game.moves.size)
+    /** Shows a game in the review screen, at its final position. */
+    fun openReview(pgn: PgnGame, record: GameRecord? = null) {
+        _review.value = ReviewState(pgn, pgn.game.moves.size, record)
+    }
+
+    /** Opens a history game in the review screen. Returns false if its PGN cannot be read. */
+    fun openRecord(record: GameRecord): Boolean {
+        val pgn = runCatching { Pgn.parseAll(record.pgn).first() }.getOrNull() ?: return false
+        openReview(pgn, record)
+        return true
+    }
+
+    /** Continues an unfinished game from the history, updating the same record. */
+    fun continueRecord(record: GameRecord): Boolean {
+        val pgn = runCatching { Pgn.parseAll(record.pgn).first() }.getOrNull() ?: return false
+        cancelEngine()
+        beginGame(record.id, record.startedAt)
+        analysisTarget = null
+        game = pgn.game.copy()
+        val vsComputer = record.mode == RecordMode.VS_COMPUTER
+        val side = record.humanSide?.let { runCatching { Side.valueOf(it) }.getOrNull() } ?: Side.WHITE
+        val level = record.level?.let { n -> Level.entries.firstOrNull { it.number == n } } ?: store.lastLevel
+        _state.value = GameUiState(
+            mode = if (vsComputer) Mode.VS_COMPUTER else Mode.TWO_PLAYERS,
+            level = level,
+            humanSide = side,
+            flipped = vsComputer && side == Side.BLACK,
+        )
+        refresh()
+        maybeEngineMove()
+        return true
     }
 
     fun reviewSelect(ply: Int) = _review.update { r -> r?.copy(selectedPly = ply.coerceIn(0, r.pgn.game.moves.size)) }
@@ -342,6 +465,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
         val r = _review.value ?: return
         val level = store.lastLevel
         cancelEngine()
+        beginGame()
         analysisTarget = null
         game = Game(r.pgn.game.startPosition.toFen())
         for (pm in r.pgn.game.moves.take(r.selectedPly)) game.play(pm.move)
@@ -361,6 +485,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
     fun continueSaved() {
         val saved = store.load() ?: return newGame(Mode.TWO_PLAYERS)
         cancelEngine()
+        beginGame(saved.recordId, saved.startedAt)
         game = Game(saved.startFen)
         for (m in saved.moves) if (!game.playUci(m)) break
         _state.value = GameUiState(
@@ -561,6 +686,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             )
         }
         save()
+        // A game that just ended goes to the history straight away.
+        if (game.result != null && game.result != lastSavedResult) persistHistory()
     }
 
     private fun save() {
@@ -574,6 +701,8 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
                 moves = game.moves.map { it.move.uci },
                 flipped = s.flipped,
                 finished = game.isOver,
+                recordId = recordId,
+                startedAt = startedAt,
             )
         )
     }

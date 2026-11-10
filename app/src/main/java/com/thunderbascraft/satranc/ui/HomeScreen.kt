@@ -23,6 +23,9 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.History
+import com.thunderbascraft.satranc.data.history.GameRecord
+import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.outlined.FileOpen
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.ContentPaste
@@ -110,6 +113,10 @@ fun HomeScreen(
     /** Called with PGN text read from a file or pasted. */
     onImportText: (String) -> Unit = {},
     onImportError: (Throwable) -> Unit = {},
+    /** The latest history games (up to three are shown). */
+    recent: List<GameRecord> = emptyList(),
+    onHistory: () -> Unit = {},
+    onOpenRecord: (GameRecord) -> Unit = {},
 ) {
     var level by rememberSaveable { mutableStateOf(initialLevel) }
     var side by rememberSaveable { mutableStateOf(SideChoice.WHITE) }
@@ -211,6 +218,7 @@ fun HomeScreen(
                     }
                 }
             }
+            if (recent.isNotEmpty()) RecentGames(recent.take(3), onHistory, onOpenRecord)
             Spacer(Modifier.height(8.dp))
         }
 
@@ -231,6 +239,9 @@ fun HomeScreen(
                         onClick = { importMenu = false; pasteOpen = true },
                     )
                 }
+            }
+            IconButton(onClick = onHistory) {
+                Icon(Icons.Outlined.History, contentDescription = stringResource(R.string.history))
             }
             IconButton(onClick = onSettings) {
                 Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings))
@@ -296,5 +307,20 @@ private fun CardTitle(icon: ImageVector, text: String) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.width(10.dp))
         Text(text, style = MaterialTheme.typography.titleLarge)
+    }
+}
+
+@Composable
+private fun RecentGames(records: List<GameRecord>, onHistory: () -> Unit, onOpen: (GameRecord) -> Unit) {
+    ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.History, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                Spacer(Modifier.width(10.dp))
+                Text(stringResource(R.string.recent_games), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                TextButton(onClick = onHistory) { Text(stringResource(R.string.see_all)) }
+            }
+            for (r in records) HistoryRow(record = r, selected = false, onClick = { onOpen(r) }, onLongClick = { onOpen(r) })
+        }
     }
 }

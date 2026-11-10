@@ -126,4 +126,32 @@
     <string name="vs_computer_as_black">Against the computer, you play Black</string>
     <string name="unknown_player">Unknown</string>
     <string name="loading">Loading…</string>
+    <string name="computer_name">Computer (Level %1$d, %2$s)</string>
+    <string name="history">Game history</string>
+    <string name="recent_games">Recent games</string>
+    <string name="see_all">See all</string>
+    <string name="filter_all">All</string>
+    <string name="filter_computer">Vs computer</string>
+    <string name="filter_two">Two players</string>
+    <string name="filter_imported">Imported</string>
+    <plurals name="games_count"><item quantity="one">%1$d game</item><item quantity="other">%1$d games</item></plurals>
+    <string name="stats_vs_computer">Vs computer – wins: %1$d · draws: %2$d · losses: %3$d</string>
+    <string name="outcome_win">Win</string>
+    <string name="outcome_loss">Loss</string>
+    <string name="outcome_draw">Draw</string>
+    <string name="outcome_unfinished">Unfinished</string>
+    <string name="opponent_computer">Computer · Level %1$d · %2$s</string>
+    <string name="you_played">You: %1$s</string>
+    <plurals name="moves_count"><item quantity="one">%1$d move</item><item quantity="other">%1$d moves</item></plurals>
+    <string name="export_all">Export all as PGN…</string>
+    <string name="share_all">Share all as PGN</string>
+    <string name="import_into_history">Import PGN into history</string>
+    <string name="delete_all">Delete all</string>
+    <string name="delete">Delete</string>
+    <plurals name="games_deleted"><item quantity="one">%1$d game deleted</item><item quantity="other">%1$d games deleted</item></plurals>
+    <string name="imported_summary">Imported: %1$d · skipped: %2$d</string>
+    <string name="select_all">Select all</string>
+    <string name="no_games">No games yet. Finished games appear here automatically.</string>
+    <plurals name="confirm_delete_all"><item quantity="one">Delete %1$d game from the history? This cannot be undone.</item><item quantity="other">Delete all %1$d games from the history? This cannot be undone.</item></plurals>
+    <plurals name="selected_count"><item quantity="one">%1$d selected</item><item quantity="other">%1$d selected</item></plurals>
 </resources>
