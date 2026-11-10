@@ -1,0 +1,56 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "games": {
+      "$code": {
+        ".read": "auth != null && $code.matches(/^[A-HJ-NP-Z2-9]{6}$/)",
+        ".write": "auth != null && $code.matches(/^[A-HJ-NP-Z2-9]{6}$/) && newData.exists() && ((!data.exists() && newData.child('status').val() == 'waiting') || data.child('white').val() == auth.uid || data.child('black').val() == auth.uid || (data.child('status').val() == 'waiting' && newData.child('status').val() == 'active'))",
+        ".validate": "newData.hasChildren(['status', 'moveCount', 'createdAt', 'lastMoveAt']) && (newData.child('white').exists() || newData.child('black').exists()) && newData.child('white').val() != newData.child('black').val() && (newData.child('moveCount').val() == 0 || newData.child('moves').exists()) && (!data.child('result').exists() || newData.child('result').val() == data.child('result').val()) && (!data.child('reason').exists() || newData.child('reason').val() == data.child('reason').val())",
+        "white": {
+          ".validate": "newData.isString() && (data.exists() ? newData.val() == data.val() : newData.val() == auth.uid)"
+        },
+        "black": {
+          ".validate": "newData.isString() && (data.exists() ? newData.val() == data.val() : newData.val() == auth.uid)"
+        },
+        "status": {
+          ".validate": "newData.isString() && ((newData.val() == 'waiting' && (!data.exists() || data.val() == 'waiting')) || (newData.val() == 'active' && data.val() != 'finished' && newData.parent().child('white').exists() && newData.parent().child('black').exists()) || (newData.val() == 'finished' && data.exists()))"
+        },
+        "moves": {
+          ".validate": "newData.isString() && newData.val().length <= 6000 && newData.val().matches(/^[a-h][1-8][a-h][1-8][qrbn]?( [a-h][1-8][a-h][1-8][qrbn]?)*$/) && (newData.val() == data.val() || (newData.val().length <= (data.exists() ? data.val().length + 6 : 5) && (!data.exists() || newData.val().beginsWith(data.val() + ' ')) && newData.parent().child('moveCount').val() == data.parent().child('moveCount').val() + 1))"
+        },
+        "moveCount": {
+          ".validate": "newData.isNumber() && (data.exists() ? (newData.val() == data.val() || (newData.val() == data.val() + 1 && data.parent().child('status').val() == 'active' && newData.parent().child('moves').val() != data.parent().child('moves').val() && (newData.val() % 2 == 1 ? auth.uid == data.parent().child('white').val() : auth.uid == data.parent().child('black').val()))) : newData.val() == 0)"
+        },
+        "result": {
+          ".validate": "newData.isString() && (newData.val() == '1-0' || newData.val() == '0-1' || newData.val() == '1/2-1/2') && newData.parent().child('status').val() == 'finished'"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().matches(/^(checkmate|stalemate|insufficient|repetition|fifty|resign|agreement|abandoned|cancelled)$/) && newData.parent().child('status').val() == 'finished'"
+        },
+        "drawOffer": {
+          ".validate": "newData.isString() && (newData.val() == data.val() || (newData.val() == auth.uid && newData.parent().child('status').val() == 'active'))"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val())"
+        },
+        "lastMoveAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "presence": {
+          "$uid": {
+            ".validate": "($uid == newData.parent().parent().child('white').val() || $uid == newData.parent().parent().child('black').val()) && newData.hasChildren(['online', 'since'])",
+            "online": {
+              ".validate": "newData.isBoolean() && ($uid == auth.uid || newData.val() == data.val())"
+            },
+            "since": {
+              ".validate": "newData.isNumber() && ($uid == auth.uid || newData.val() == data.val())"
+            },
+            "$other": { ".validate": false }
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
