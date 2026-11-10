@@ -1,6 +1,21 @@
 package com.thunderbascraft.satranc.ui
 
 import androidx.compose.foundation.Image
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -100,6 +115,7 @@ fun FitText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign? =
 
 private val MaxContentWidth = 520.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     canContinue: Boolean,
@@ -120,7 +136,6 @@ fun HomeScreen(
 ) {
     var level by rememberSaveable { mutableStateOf(initialLevel) }
     var side by rememberSaveable { mutableStateOf(SideChoice.WHITE) }
-    var importMenu by remember { mutableStateOf(false) }
     var pasteOpen by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val openFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -130,133 +145,150 @@ fun HomeScreen(
         PastePgnDialog(onLoad = { pasteOpen = false; onImportText(it) }, onDismiss = { pasteOpen = false })
     }
 
-    Box(modifier.fillMaxSize()) {
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Hero()
+    var importChooser by rememberSaveable { mutableStateOf(false) }
+    if (importChooser) {
+        ImportChooserDialog(
+            onFile = { importChooser = false; openFile.launch(PGN_OPEN_TYPES) },
+            onPaste = { importChooser = false; pasteOpen = true },
+            onDismiss = { importChooser = false },
+        )
+    }
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    BackHandler(enabled = drawerState.isOpen) { scope.launch { drawerState.close() } }
+    val entries = homeDrawerEntries(
+        canContinue = canContinue,
+        onHome = {},
+        onContinue = onContinue,
+        onHistory = onHistory,
+        onImport = { importChooser = true },
+        onSettings = onSettings,
+        onAbout = onAbout,
+    )
+    val menuRotation by animateFloatAsState(
+        targetValue = if (drawerState.targetValue == DrawerValue.Open) 90f else 0f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+        label = "menuIconRotation",
+    )
 
-            if (canContinue) ContinueCard(onContinue)
-
-            ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    CardTitle(Icons.Filled.SmartToy, stringResource(R.string.vs_computer))
-                    Text(
-                        stringResource(R.string.level),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    AppDrawer(drawerState, selectedKey = "home", entries = entries) {
+    Column(modifier.fillMaxSize()) {
+        TopAppBar(
+            title = { FitText(stringResource(R.string.app_name)) },
+            navigationIcon = {
+                IconButton(
+                    onClick = { scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() } },
+                    modifier = Modifier.testTag("nav_menu"),
+                ) {
+                    Icon(
+                        Icons.Filled.Menu,
+                        contentDescription = stringResource(R.string.open_menu),
+                        modifier = Modifier.graphicsLayer { rotationZ = menuRotation },
                     )
-                    Level.entries.chunked(2).forEach { row ->
+                }
+            },
+            windowInsets = WindowInsets(0),
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+        )
+            Column(
+                Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Hero()
+
+                if (canContinue) ContinueCard(onContinue)
+
+                ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        CardTitle(Icons.Filled.SmartToy, stringResource(R.string.vs_computer))
+                        Text(
+                            stringResource(R.string.level),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Level.entries.chunked(2).forEach { row ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                row.forEach { l ->
+                                    FilterChip(
+                                        selected = level == l,
+                                        onClick = { level = l },
+                                        label = { FitText("${l.number}. ${levelName(l)}") },
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                }
+                            }
+                        }
+                        Text(
+                            stringResource(R.string.play_as),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            row.forEach { l ->
+                            SideChoice.entries.forEach { c ->
                                 FilterChip(
-                                    selected = level == l,
-                                    onClick = { level = l },
-                                    label = { FitText("${l.number}. ${levelName(l)}") },
+                                    selected = side == c,
+                                    onClick = { side = c },
+                                    label = {
+                                        FitText(
+                                            stringResource(
+                                                when (c) {
+                                                    SideChoice.WHITE -> R.string.white
+                                                    SideChoice.BLACK -> R.string.black
+                                                    SideChoice.RANDOM -> R.string.random
+                                                }
+                                            )
+                                        )
+                                    },
                                     modifier = Modifier.weight(1f),
                                 )
                             }
                         }
-                    }
-                    Text(
-                        stringResource(R.string.play_as),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SideChoice.entries.forEach { c ->
-                            FilterChip(
-                                selected = side == c,
-                                onClick = { side = c },
-                                label = {
-                                    FitText(
-                                        stringResource(
-                                            when (c) {
-                                                SideChoice.WHITE -> R.string.white
-                                                SideChoice.BLACK -> R.string.black
-                                                SideChoice.RANDOM -> R.string.random
-                                            }
-                                        )
-                                    )
-                                },
-                                modifier = Modifier.weight(1f),
-                            )
+                        Button(
+                            onClick = {
+                                val s = when (side) {
+                                    SideChoice.WHITE -> Side.WHITE
+                                    SideChoice.BLACK -> Side.BLACK
+                                    SideChoice.RANDOM -> if (Math.random() < 0.5) Side.WHITE else Side.BLACK
+                                }
+                                onVsComputer(level, s)
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        ) {
+                            Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.start))
                         }
                     }
-                    Button(
-                        onClick = {
-                            val s = when (side) {
-                                SideChoice.WHITE -> Side.WHITE
-                                SideChoice.BLACK -> Side.BLACK
-                                SideChoice.RANDOM -> if (Math.random() < 0.5) Side.WHITE else Side.BLACK
-                            }
-                            onVsComputer(level, s)
-                        },
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                    ) {
-                        Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.start))
+                }
+
+                ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        CardTitle(Icons.Filled.People, stringResource(R.string.two_players))
+                        Text(
+                            stringResource(R.string.two_players_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        OutlinedButton(onClick = onTwoPlayers, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(R.string.start))
+                        }
                     }
                 }
+                if (recent.isNotEmpty()) RecentGames(recent.take(3), onHistory, onOpenRecord)
+                Spacer(Modifier.height(8.dp))
             }
 
-            ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    CardTitle(Icons.Filled.People, stringResource(R.string.two_players))
-                    Text(
-                        stringResource(R.string.two_players_desc),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    OutlinedButton(onClick = onTwoPlayers, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.start))
-                    }
-                }
-            }
-            if (recent.isNotEmpty()) RecentGames(recent.take(3), onHistory, onOpenRecord)
-            Spacer(Modifier.height(8.dp))
-        }
-
-        Row(Modifier.align(Alignment.TopEnd).padding(4.dp)) {
-            Box {
-                IconButton(onClick = { importMenu = true }) {
-                    Icon(Icons.Outlined.FileOpen, contentDescription = stringResource(R.string.import_pgn))
-                }
-                DropdownMenu(expanded = importMenu, onDismissRequest = { importMenu = false }) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.open_pgn_file)) },
-                        leadingIcon = { Icon(Icons.Outlined.FolderOpen, contentDescription = null) },
-                        onClick = { importMenu = false; openFile.launch(PGN_OPEN_TYPES) },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.paste_pgn)) },
-                        leadingIcon = { Icon(Icons.Outlined.ContentPaste, contentDescription = null) },
-                        onClick = { importMenu = false; pasteOpen = true },
-                    )
-                }
-            }
-            IconButton(onClick = onHistory) {
-                Icon(Icons.Outlined.History, contentDescription = stringResource(R.string.history))
-            }
-            IconButton(onClick = onSettings) {
-                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings))
-            }
-            IconButton(onClick = onAbout) {
-                Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about))
-            }
-        }
+    }
     }
 }
 
 @Composable
 private fun Hero() {
     Column(
-        Modifier.fillMaxWidth().padding(top = 16.dp),
+        Modifier.fillMaxWidth().padding(top = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -265,11 +297,6 @@ private fun Hero() {
                 Image(painterResource(R.drawable.piece_wn), contentDescription = null, modifier = Modifier.size(68.dp))
             }
         }
-        Text(
-            stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary,
-        )
         Text(
             stringResource(R.string.tagline),
             style = MaterialTheme.typography.bodyLarge,

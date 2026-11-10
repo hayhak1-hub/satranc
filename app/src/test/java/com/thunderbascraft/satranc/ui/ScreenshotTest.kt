@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import com.thunderbascraft.satranc.chess.Evaluation
 import com.thunderbascraft.satranc.chess.Game
 import com.thunderbascraft.satranc.chess.Square
@@ -189,6 +190,28 @@ class ScreenshotTest {
         compose.waitForIdle()
         save("history")
         db.close()
+    }
+
+    private fun openDrawerAndSave(name: String) {
+        compose.setContent {
+            SatrancTheme { HomeScreen(true, Level.CASUAL, {}, { _, _ -> }, {}, {}) }
+        }
+        compose.onNode(androidx.compose.ui.test.hasTestTag("nav_menu")).performClick()
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.waitForIdle()
+        save(name)
+    }
+
+    @Test @Config(qualifiers = "tr-w411dp-h891dp-xxhdpi")
+    fun drawerOpen() {
+        assumeTrue(dir != null)
+        openDrawerAndSave("drawer")
+    }
+
+    @Test @Config(qualifiers = "tr-w891dp-h411dp-land-xxhdpi", fontScale = 1.3f)
+    fun drawerOpenLandscapeLargeFont() {
+        assumeTrue(dir != null)
+        openDrawerAndSave("drawer_land_font130")
     }
 
     private fun saveBitmap(name: String, bmp: Bitmap) {

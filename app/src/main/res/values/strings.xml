@@ -154,4 +154,8 @@
     <string name="no_games">No games yet. Finished games appear here automatically.</string>
     <plurals name="confirm_delete_all"><item quantity="one">Delete %1$d game from the history? This cannot be undone.</item><item quantity="other">Delete all %1$d games from the history? This cannot be undone.</item></plurals>
     <plurals name="selected_count"><item quantity="one">%1$d selected</item><item quantity="other">%1$d selected</item></plurals>
+    <string name="nav_home">Home · New game</string>
+    <string name="open_menu">Open menu</string>
+    <string name="version_label">Version %1$s</string>
+    <string name="source_code_github">Source code (GitHub)</string>
 </resources>

@@ -149,4 +149,8 @@
     <string name="no_games">Henüz oyun yok. Biten oyunlar burada otomatik olarak görünür.</string>
     <plurals name="confirm_delete_all"><item quantity="one">Geçmişteki %1$d oyun silinsin mi? Bu geri alınamaz.</item><item quantity="other">Geçmişteki %1$d oyunun tümü silinsin mi? Bu geri alınamaz.</item></plurals>
     <plurals name="selected_count"><item quantity="one">%1$d seçildi</item><item quantity="other">%1$d seçildi</item></plurals>
+    <string name="nav_home">Ana sayfa · Yeni oyun</string>
+    <string name="open_menu">Menüyü aç</string>
+    <string name="version_label">Sürüm %1$s</string>
+    <string name="source_code_github">Kaynak kod (GitHub)</string>
 </resources>

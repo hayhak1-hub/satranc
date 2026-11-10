@@ -149,4 +149,8 @@
     <string name="no_games">Noch keine Partien. Beendete Partien erscheinen hier automatisch.</string>
     <plurals name="confirm_delete_all"><item quantity="one">%1$d Partie aus dem Verlauf löschen? Das kann nicht rückgängig gemacht werden.</item><item quantity="other">Alle %1$d Partien aus dem Verlauf löschen? Das kann nicht rückgängig gemacht werden.</item></plurals>
     <plurals name="selected_count"><item quantity="one">%1$d ausgewählt</item><item quantity="other">%1$d ausgewählt</item></plurals>
+    <string name="nav_home">Start · Neue Partie</string>
+    <string name="open_menu">Menü öffnen</string>
+    <string name="version_label">Version %1$s</string>
+    <string name="source_code_github">Quellcode (GitHub)</string>
 </resources>

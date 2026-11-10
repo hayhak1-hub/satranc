@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentPaste
+import androidx.compose.material.icons.outlined.FileOpen
+import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -102,4 +106,34 @@ fun ImportDialogs(state: ImportState, onChoose: (PgnGame) -> Unit, onDismiss: ()
 fun gameTitle(g: PgnGame): String {
     val unknown = stringResource(R.string.unknown_player)
     return "${g.white ?: unknown} – ${g.black ?: unknown}"
+}
+
+/** Asks whether to open a .pgn file or paste PGN text. */
+@Composable
+fun ImportChooserDialog(onFile: () -> Unit, onPaste: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { androidx.compose.material3.Icon(Icons.Outlined.FileOpen, contentDescription = null) },
+        title = { Text(stringResource(R.string.import_pgn)) },
+        text = {
+            Column {
+                ChooserRow(Icons.Outlined.FolderOpen, stringResource(R.string.open_pgn_file), onFile)
+                ChooserRow(Icons.Outlined.ContentPaste, stringResource(R.string.paste_pgn), onPaste)
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+@Composable
+private fun ChooserRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClick: () -> Unit) {
+    androidx.compose.foundation.layout.Row(
+        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 14.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+    ) {
+        androidx.compose.material3.Icon(icon, contentDescription = null)
+        androidx.compose.foundation.layout.Spacer(Modifier.padding(start = 16.dp))
+        Text(text, style = MaterialTheme.typography.bodyLarge)
+    }
 }
