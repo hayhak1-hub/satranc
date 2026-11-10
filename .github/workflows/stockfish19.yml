@@ -1,0 +1,56 @@
+# Builds Stockfish 19 for Android without the embedded NNUE network.
+# The app ships these binaries as libstockfish19.so and downloads the
+# network file (data only) at runtime. See engine/stockfish19/README.md.
+name: Stockfish 19 binaries
+
+on:
+  workflow_dispatch:
+
+env:
+  SF_TAG: sf_19
+  NDK_VERSION: 29.0.14206865
+  API: 26
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Stockfish ${{ env.SF_TAG }}
+        uses: actions/checkout@v4
+        with:
+          repository: official-stockfish/Stockfish
+          ref: ${{ env.SF_TAG }}
+          path: stockfish
+
+      - name: Install NDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" > /dev/null
+          echo "$ANDROID_HOME/ndk/$NDK_VERSION/toolchains/llvm/prebuilt/linux-x86_64/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        working-directory: stockfish/src
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          build() {
+            local abi="$1" arch="$2" cxx="$3"
+            make clean > /dev/null
+            # `make build` fetches the default net for its sanity check; with
+            # NNUE_EMBEDDING_OFF it is not compiled into the binary.
+            make -j"$(nproc)" build ARCH="$arch" COMP=ndk COMPCXX="$cxx" \
+              EXTRACXXFLAGS="-DNNUE_EMBEDDING_OFF" \
+              EXTRALDFLAGS="-Wl,-z,max-page-size=16384"
+            llvm-strip stockfish
+            mkdir -p "$GITHUB_WORKSPACE/out/$abi"
+            cp stockfish "$GITHUB_WORKSPACE/out/$abi/libstockfish19.so"
+          }
+          build arm64-v8a   armv8               "aarch64-linux-android${API}-clang++"
+          build armeabi-v7a armv7-neon          "armv7a-linux-androideabi${API}-clang++"
+          build x86_64      x86-64-sse41-popcnt "x86_64-linux-android${API}-clang++"
+          ls -la "$GITHUB_WORKSPACE"/out/*/
+          file "$GITHUB_WORKSPACE"/out/*/libstockfish19.so
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libstockfish19
+          path: out/
