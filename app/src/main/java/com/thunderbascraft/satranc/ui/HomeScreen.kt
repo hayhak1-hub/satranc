@@ -36,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.History
@@ -133,6 +134,10 @@ fun HomeScreen(
     recent: List<GameRecord> = emptyList(),
     onHistory: () -> Unit = {},
     onOpenRecord: (GameRecord) -> Unit = {},
+    onOnline: () -> Unit = {},
+    /** Code of an unfinished online game that can be resumed. */
+    onlineResumeCode: String? = null,
+    onResumeOnline: () -> Unit = onOnline,
 ) {
     var level by rememberSaveable { mutableStateOf(initialLevel) }
     var side by rememberSaveable { mutableStateOf(SideChoice.WHITE) }
@@ -160,6 +165,7 @@ fun HomeScreen(
         canContinue = canContinue,
         onHome = {},
         onContinue = onContinue,
+        onOnline = onOnline,
         onHistory = onHistory,
         onImport = { importChooser = true },
         onSettings = onSettings,
@@ -198,6 +204,7 @@ fun HomeScreen(
                 Hero()
 
                 if (canContinue) ContinueCard(onContinue)
+                onlineResumeCode?.let { OnlineResumeCard(it, onResumeOnline) }
 
                 ElevatedCard(Modifier.widthIn(max = MaxContentWidth).fillMaxWidth()) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -322,6 +329,28 @@ private fun ContinueCard(onContinue: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.continue_game), style = MaterialTheme.typography.titleMedium)
                 Text(stringResource(R.string.continue_desc), style = MaterialTheme.typography.bodyMedium)
+            }
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+        }
+    }
+}
+
+@Composable
+private fun OnlineResumeCard(code: String, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.widthIn(max = MaxContentWidth).fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+    ) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Public, contentDescription = null, modifier = Modifier.size(32.dp))
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.online_resume), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.online_resume_desc, code), style = MaterialTheme.typography.bodyMedium)
             }
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
         }

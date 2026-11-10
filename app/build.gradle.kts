@@ -13,6 +13,12 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Online play uses Firebase. google-services.json is kept out of git (see docs/ONLINE.md);
+// without it the app still builds and the online mode reports that it is not configured.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 room {
     // Exported schemas are committed so that future migrations can be tested.
     schemaDirectory("$projectDir/schemas")
@@ -109,6 +115,10 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
+    implementation(libs.kotlinx.coroutines.play.services)
     debugImplementation(libs.compose.ui.tooling)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)

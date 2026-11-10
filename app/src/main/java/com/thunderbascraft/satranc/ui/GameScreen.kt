@@ -301,7 +301,7 @@ private fun ColumnScope.GameDetails(state: GameUiState, onAnalyse: () -> Unit, v
 }
 
 @Composable
-private fun MenuItem(icon: ImageVector, text: String, enabled: Boolean = true, onClick: () -> Unit) {
+internal fun MenuItem(icon: ImageVector, text: String, enabled: Boolean = true, onClick: () -> Unit) {
     DropdownMenuItem(
         text = { Text(text) },
         leadingIcon = { Icon(icon, contentDescription = null) },
@@ -422,7 +422,7 @@ private fun ResultDialog(result: GameResult, onAnalyse: () -> Unit, onNewGame: (
 }
 
 @Composable
-private fun PromotionDialog(side: Side, onChoose: (PieceType?) -> Unit) {
+internal fun PromotionDialog(side: Side, onChoose: (PieceType?) -> Unit) {
     AlertDialog(
         onDismissRequest = { onChoose(null) },
         confirmButton = {},
@@ -448,7 +448,7 @@ private fun PromotionDialog(side: Side, onChoose: (PieceType?) -> Unit) {
 }
 
 @Composable
-private fun ConfirmDialog(text: String, onYes: () -> Unit, onNo: () -> Unit) {
+internal fun ConfirmDialog(text: String, onYes: () -> Unit, onNo: () -> Unit) {
     AlertDialog(
         onDismissRequest = onNo,
         confirmButton = { TextButton(onClick = onYes) { Text(stringResource(R.string.yes)) } },

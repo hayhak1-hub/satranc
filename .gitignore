@@ -12,3 +12,5 @@ engine/stockfish/*.o
 engine/stockfish/syzygy/*.o
 engine/stockfish/stockfish
 engine/stockfish/.depend
+# Firebase config for online play stays local (see docs/ONLINE.md).
+app/google-services.json

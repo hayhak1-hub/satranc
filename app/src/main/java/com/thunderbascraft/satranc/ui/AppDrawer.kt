@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -220,6 +221,7 @@ fun homeDrawerEntries(
     canContinue: Boolean,
     onHome: () -> Unit,
     onContinue: () -> Unit,
+    onOnline: () -> Unit,
     onHistory: () -> Unit,
     onImport: () -> Unit,
     onSettings: () -> Unit,
@@ -227,6 +229,7 @@ fun homeDrawerEntries(
 ): List<DrawerEntry> = buildList {
     add(DrawerEntry("home", stringResource(R.string.nav_home), Icons.Outlined.Home, onHome))
     if (canContinue) add(DrawerEntry("continue", stringResource(R.string.continue_game), Icons.Outlined.PlayCircle, onContinue))
+    add(DrawerEntry("online", stringResource(R.string.nav_online), Icons.Outlined.Public, onOnline))
     add(DrawerEntry("history", stringResource(R.string.history), Icons.Outlined.History, onHistory))
     add(DrawerEntry("import", stringResource(R.string.import_pgn), Icons.Outlined.FileOpen, onImport))
     add(DrawerEntry("settings", stringResource(R.string.settings), Icons.Outlined.Settings, onSettings))
